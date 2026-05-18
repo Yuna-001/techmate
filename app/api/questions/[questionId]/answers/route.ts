@@ -6,6 +6,7 @@ import AnswerModel from '@/models/answer';
 import QuestionModel from '@/models/question';
 import { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
 
 interface RouteParams {
   params: Promise<{ questionId: string }>;
@@ -122,7 +123,89 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     return NextResponse.json({ answerId }, { status: 201 });
   } catch (err) {
-    console.error(`POST /api/questions/${questionId}/answers db error`, err);
+    // OpenAI API에서 에러 응답이 온 경우
+    if (err instanceof OpenAI.APIError) {
+      const status = err.status ?? 500;
+
+      console.error(
+        `POST /api/questions/${questionId}/answers OpenAI APIError`,
+        { status, name: err.name, requestID: err.requestID },
+        err,
+      );
+
+      if (status === 429) {
+        return NextResponse.json(
+          {
+            error:
+              '요청이 많아 피드백 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+          },
+          { status: 429 },
+        );
+      }
+
+      // OpenAI 서버 장애/일시 오류
+      if (status >= 500) {
+        return NextResponse.json(
+          {
+            error: 'OpenAI 서비스가 불안정합니다. 잠시 후 다시 시도해 주세요.',
+          },
+          { status: 503 },
+        );
+      }
+
+      // 요청 자체가 문제(프롬프트/입력)인 경우
+      if (status === 400 || status === 422) {
+        return NextResponse.json(
+          { error: '피드백 생성 요청이 올바르지 않습니다.' },
+          { status: 400 },
+        );
+      }
+
+      // 그 외는 일반 실패로 처리
+      return NextResponse.json(
+        { error: '피드백 생성에 실패했습니다.' },
+        { status: 500 },
+      );
+    }
+
+    // OpenAI 서버와의 네트워크/연결 문제
+    if (
+      err instanceof OpenAI.APIConnectionError ||
+      err instanceof OpenAI.APIConnectionTimeoutError
+    ) {
+      console.error(
+        `POST /api/questions/${questionId}/answers OpenAI connection error`,
+        err,
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            'OpenAI 서비스 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+        },
+        { status: 503 },
+      );
+    }
+
+    // 피드백 파싱/검증 로직에서 명시적으로 던진 에러
+    if (err instanceof Error) {
+      if (
+        err.message === '피드백 생성에 실패했습니다.' ||
+        err.message === '생성된 응답 형식이 올바르지 않습니다.'
+      ) {
+        console.error(
+          `POST /api/questions/${questionId}/answers feedback logic error`,
+          err,
+        );
+
+        return NextResponse.json({ error: err.message }, { status: 500 });
+      }
+    }
+
+    console.error(
+      `POST /api/questions/${questionId}/answers unexpected error`,
+      err,
+    );
 
     return NextResponse.json(
       { error: '서버 에러가 발생했습니다.' },
