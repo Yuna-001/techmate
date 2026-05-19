@@ -69,7 +69,7 @@ export function AnswerForm({ questionId }: { questionId: string }) {
       });
     } catch {
       toast.error('네트워크 오류가 발생했습니다.', {
-        description: '잠시 후 다시 시도해주세요.',
+        description: '인터넷 연결을 확인한 후 다시 시도해주세요.',
       });
     } finally {
       if (!navigated) setIsCreating(false);
