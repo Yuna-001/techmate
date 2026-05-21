@@ -80,3 +80,43 @@ fix: 정적 이미지 요청 프록시 제외
 
 - 새 의존성은 명확히 필요한 경우에만 추가한다.
 - 사용 가능한 라이브러리나 스크립트를 추정하지 말고 먼저 `package.json`을 확인한다.
+- 주요 프레임워크나 라이브러리 버전을 변경한 경우 `package.json`과 함께 `AGENTS.md`의 기술 스택 섹션도 수정한다.
+
+## 기술 스택
+
+이 프로젝트는 Next.js App Router 기반의 TypeScript 웹 애플리케이션이다. 아래 목록은 현재 주요 스택 파악용이며, 정확한 패키지와 버전은 항상 `package.json`을 기준으로 확인한다.
+
+### Core
+
+- Next.js App Router
+- React
+- TypeScript
+
+### UI
+
+- Tailwind CSS
+- Shadcn UI
+- Radix UI
+- Lucide React
+- Sonner
+- next-themes
+
+### Auth & Data
+
+- NextAuth
+- MongoDB
+- Mongoose
+- Auth MongoDB Adapter
+
+### AI
+
+- OpenAI SDK
+
+### Test & Quality
+
+- Jest
+- React Testing Library
+- ESLint
+- Prettier
+- Husky
+- lint-staged
