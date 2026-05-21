@@ -1,6 +1,7 @@
 import { requireUserId } from '@/lib/auth/requireUserId';
 import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
+import AnswerModel from '@/models/answer';
 import QuestionModel from '@/models/question';
 import type { QuestionDetailResponse } from '@/types/question';
 import { Types } from 'mongoose';
@@ -131,6 +132,11 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
         { status: 404 },
       );
     }
+
+    await AnswerModel.deleteMany({
+      questionId,
+      userId,
+    });
 
     // 삭제 성공 (응답 바디 없음)
     return new NextResponse(null, { status: 204 });

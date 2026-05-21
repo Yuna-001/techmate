@@ -82,6 +82,18 @@ export async function GET(req: Request, { params }: RouteParams) {
   try {
     await dbConnect();
 
+    const questionExists = await QuestionModel.exists({
+      _id: questionId,
+      userId,
+    });
+
+    if (!questionExists) {
+      return NextResponse.json(
+        { error: '해당 질문을 찾을 수 없습니다.' },
+        { status: 404 },
+      );
+    }
+
     const filter = { userId, questionId };
 
     const [totalCount, answerDocs] = await Promise.all([
