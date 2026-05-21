@@ -12,15 +12,16 @@ interface QuestionCommonFields {
   content: string;
   isBookmarked: boolean;
   tags: string[];
-  createdAt: Date;
 }
 
 interface QuestionDoc extends QuestionCommonFields {
   _id: Types.ObjectId;
+  createdAt: Date;
 }
 
 interface QuestionListItem extends QuestionCommonFields {
   questionId: string;
+  createdAt: string;
 }
 
 const DEFAULT_PAGE = 1;
@@ -110,7 +111,7 @@ export async function GET(req: Request) {
       content: doc.content,
       isBookmarked: doc.isBookmarked,
       tags: doc.tags,
-      createdAt: doc.createdAt,
+      createdAt: doc.createdAt.toISOString(),
     }));
 
     // 페이지네이션 메타데이터 계산

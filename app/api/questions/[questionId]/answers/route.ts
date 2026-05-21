@@ -15,17 +15,18 @@ interface RouteParams {
 
 interface AnswerCommonFields {
   content: string;
-  createdAt: Date;
 }
 
 interface AnswerDoc extends AnswerCommonFields {
   _id: Types.ObjectId;
   feedback: { score: number };
+  createdAt: Date;
 }
 
 interface AnswerListItem extends AnswerCommonFields {
   answerId: string;
   score: number;
+  createdAt: string;
 }
 
 const DEFAULT_PAGE = 1;
@@ -116,7 +117,7 @@ export async function GET(req: Request, { params }: RouteParams) {
       answerId: doc._id.toString(),
       content: doc.content,
       score: doc.feedback.score,
-      createdAt: doc.createdAt,
+      createdAt: doc.createdAt.toISOString(),
     }));
 
     const totalPages = Math.ceil(totalCount / limit);
