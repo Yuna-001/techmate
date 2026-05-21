@@ -101,7 +101,7 @@ fix: 정적 이미지 요청 프록시 제외
 - Sonner
 - next-themes
 
-### Auth & Data
+### 인증 및 데이터
 
 - NextAuth
 - MongoDB
@@ -112,7 +112,7 @@ fix: 정적 이미지 요청 프록시 제외
 
 - OpenAI SDK
 
-### Test & Quality
+### 테스트 및 품질
 
 - Jest
 - React Testing Library
@@ -147,6 +147,7 @@ fix: 정적 이미지 요청 프록시 제외
 컴포넌트가 아닌 일반 함수는 기본적으로 화살표 함수로 작성한다.
 
 예외:
+
 - Next.js에서 요구하는 예약 함수나 특수 함수
 - 라이브러리/API 규격상 함수 선언문이 필요한 경우
 - 호이스팅이 명확히 필요한 경우
