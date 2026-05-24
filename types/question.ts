@@ -1,12 +1,15 @@
 import { PaginatedResponse } from './pagination';
 
-export type QuestionDetailResponse = {
+export interface QuestionDetailCommonFields {
   content: string;
-  createdAt: string;
+  idealAnswer: string;
   isBookmarked: boolean;
   tags: string[];
-  idealAnswer: string;
-};
+}
+
+export interface QuestionDetailResponse extends QuestionDetailCommonFields {
+  createdAt: string;
+}
 
 export interface QuestionListItem {
   questionId: string;

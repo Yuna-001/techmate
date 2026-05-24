@@ -13,6 +13,141 @@ interface RouteParams {
   params: Promise<{ questionId: string }>;
 }
 
+interface AnswerCommonFields {
+  content: string;
+}
+
+interface AnswerDoc extends AnswerCommonFields {
+  _id: Types.ObjectId;
+  feedback: { score: number };
+  createdAt: Date;
+}
+
+interface AnswerListItem extends AnswerCommonFields {
+  answerId: string;
+  score: number;
+  createdAt: string;
+}
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 30;
+const MAX_LIMIT = 100;
+
+// GET /api/questions/[questionId]/answers
+// - 특정 질문에 대한 사용자의 답변 목록을 조회하는 핸들러 (페이지네이션 지원)
+export async function GET(req: Request, { params }: RouteParams) {
+  const { questionId } = await params;
+
+  let userId: string;
+
+  try {
+    ({ userId } = await requireUserId());
+  } catch (err) {
+    if (err instanceof HttpError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
+
+    console.error(
+      `GET /api/questions/${questionId}/answers unexpected error in requireUserId`,
+      err,
+    );
+
+    return NextResponse.json(
+      { error: '서버 에러가 발생했습니다.' },
+      { status: 500 },
+    );
+  }
+
+  if (!Types.ObjectId.isValid(questionId)) {
+    return NextResponse.json(
+      { error: '잘못된 질문 ID입니다.' },
+      { status: 400 },
+    );
+  }
+
+  const { searchParams } = new URL(req.url);
+
+  // page: 숫자가 아니면 기본값, 1보다 작으면 1로 보정
+  const pageParam = Number(searchParams.get('page'));
+  const rawPage = Number.isFinite(pageParam)
+    ? Math.floor(pageParam)
+    : DEFAULT_PAGE;
+  const page = Math.max(DEFAULT_PAGE, rawPage);
+
+  // limit(한 페이지당 답변 개수): 숫자가 아니면 기본값, 1보다 작으면 기본값, 최대 MAX_LIMIT까지만 허용
+  const limitParam = Number(searchParams.get('limit'));
+  const rawLimit = Number.isFinite(limitParam) ? limitParam : DEFAULT_LIMIT;
+  const baseLimit = rawLimit > 0 ? Math.floor(rawLimit) : DEFAULT_LIMIT;
+  const limit = Math.min(Math.max(baseLimit, 1), MAX_LIMIT);
+
+  try {
+    await dbConnect();
+
+    const questionExists = await QuestionModel.exists({
+      _id: questionId,
+      userId,
+    });
+
+    if (!questionExists) {
+      return NextResponse.json(
+        { error: '해당 질문을 찾을 수 없습니다.' },
+        { status: 404 },
+      );
+    }
+
+    const filter = { userId, questionId };
+
+    const [totalCount, answerDocs] = await Promise.all([
+      AnswerModel.countDocuments(filter),
+      AnswerModel.find(filter, {
+        content: 1,
+        'feedback.score': 1,
+        createdAt: 1,
+      })
+        .sort({
+          createdAt: -1,
+          _id: -1,
+        })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean<AnswerDoc[]>(),
+    ]);
+
+    const answerList: AnswerListItem[] = answerDocs.map((doc) => ({
+      answerId: doc._id.toString(),
+      content: doc.content,
+      score: doc.feedback.score,
+      createdAt: doc.createdAt.toISOString(),
+    }));
+
+    const totalPages = Math.ceil(totalCount / limit);
+    const hasNextPage = page < totalPages;
+
+    return NextResponse.json(
+      {
+        items: answerList,
+        page,
+        limit,
+        totalCount,
+        totalPages,
+        hasNextPage,
+      },
+      { status: 200 },
+    );
+  } catch (err) {
+    console.error(`GET /api/questions/${questionId}/answers db error`, {
+      err,
+      page,
+      limit,
+    });
+
+    return NextResponse.json(
+      { error: '서버 에러가 발생했습니다.' },
+      { status: 500 },
+    );
+  }
+}
+
 // POST /api/questions/[questionId]/answers
 // - 사용자의 답변을 저장하고 OpenAI로부터 피드백을 생성·저장한 뒤 answerId를 반환하는 핸들러
 export async function POST(req: Request, { params }: RouteParams) {
@@ -124,7 +259,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     feedback = await generateFeedback({
       question: question.content,
       idealAnswer: question.idealAnswer,
-      answer,
+      answer: trimmedAnswer,
     });
   } catch (err) {
     // OpenAI API에서 에러 응답이 온 경우
@@ -225,11 +360,17 @@ export async function POST(req: Request, { params }: RouteParams) {
       feedback,
     });
 
-    // 질문의 lastActivityAt 필드 업데이트
-    await QuestionModel.updateOne(
-      { _id: questionId, userId },
-      { $currentDate: { lastActivityAt: true } },
-    );
+    try {
+      await QuestionModel.updateOne(
+        { _id: questionId, userId },
+        { $currentDate: { lastActivityAt: true } },
+      );
+    } catch (err) {
+      console.error(
+        `POST /api/questions/${questionId}/answers failed to update lastActivityAt`,
+        err,
+      );
+    }
 
     const answerId = _id.toString();
 

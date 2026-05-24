@@ -6,3 +6,16 @@ export interface PaginatedResponse<TItem> {
   totalPages: number;
   hasNextPage: boolean;
 }
+
+interface BasePaginationProps {
+  page: number;
+  totalPages: number;
+}
+
+export interface LinkPaginationProps extends BasePaginationProps {
+  makeHref: (p: number) => string;
+}
+
+export interface ActionPaginationProps extends BasePaginationProps {
+  onPageChange: (p: number) => void;
+}

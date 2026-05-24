@@ -1,14 +1,22 @@
 import { requireUserId } from '@/lib/auth/requireUserId';
 import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
+import AnswerModel from '@/models/answer';
 import QuestionModel from '@/models/question';
-import type { QuestionDetailResponse } from '@/types/question';
-import { Types } from 'mongoose';
+import type {
+  QuestionDetailCommonFields,
+  QuestionDetailResponse,
+} from '@/types/question';
+import mongoose, { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 
 type RouteParams = {
   params: Promise<{ questionId: string }>;
 };
+
+interface QuestionDetailDoc extends QuestionDetailCommonFields {
+  createdAt: Date;
+}
 
 // GET /api/questions/[questionId]
 // - 사용자 소유의 특정 질문을 조회하는 핸들러
@@ -60,7 +68,7 @@ export async function GET(_req: Request, { params }: RouteParams) {
         isBookmarked: 1,
         createdAt: 1,
       },
-    ).lean<QuestionDetailResponse | null>();
+    ).lean<QuestionDetailDoc | null>();
 
     // 질문이 존재하지 않을 경우 404 반환
     if (!question) {
@@ -70,8 +78,13 @@ export async function GET(_req: Request, { params }: RouteParams) {
       );
     }
 
+    const response: QuestionDetailResponse = {
+      ...question,
+      createdAt: question.createdAt.toISOString(),
+    };
+
     // 질문이 존재하는 경우 질문 정보 반환
-    return NextResponse.json<QuestionDetailResponse>(question, { status: 200 });
+    return NextResponse.json<QuestionDetailResponse>(response, { status: 200 });
   } catch (err) {
     console.error(`GET /api/questions/${questionId} db error`, err);
 
@@ -118,14 +131,33 @@ export async function DELETE(_req: Request, { params }: RouteParams) {
   try {
     await dbConnect();
 
-    // 질문 삭제
-    const deleteResult = await QuestionModel.deleteOne({
-      _id: questionId,
-      userId,
-    });
+    const session = await mongoose.startSession();
+    let deletedCount = 0;
+
+    try {
+      await session.withTransaction(async () => {
+        // 질문 삭제
+        const deleteResult = await QuestionModel.deleteOne({
+          _id: questionId,
+          userId,
+        }).session(session);
+
+        deletedCount = deleteResult.deletedCount;
+
+        if (deletedCount === 0) return;
+
+        // 답변들 삭제
+        await AnswerModel.deleteMany({
+          questionId,
+          userId,
+        }).session(session);
+      });
+    } finally {
+      await session.endSession();
+    }
 
     // 질문이 존재하지 않을 경우 404 반환
-    if (deleteResult.deletedCount === 0) {
+    if (deletedCount === 0) {
       return NextResponse.json(
         { error: '해당 질문을 찾을 수 없습니다.' },
         { status: 404 },

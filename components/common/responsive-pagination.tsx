@@ -8,14 +8,9 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { getPaginationItems } from '@/lib/pagination/getPaginationItems';
+import type { LinkPaginationProps } from '@/types/pagination';
 
-type PaginationProps = {
-  page: number;
-  totalPages: number;
-  makeHref: (page: number) => string;
-};
-
-export function ResponsivePagination(props: PaginationProps) {
+export function ResponsivePagination(props: LinkPaginationProps) {
   if (props.totalPages <= 1) return null;
 
   return (
@@ -34,7 +29,7 @@ export function CompactPagination({
   page,
   totalPages,
   makeHref,
-}: PaginationProps) {
+}: LinkPaginationProps) {
   const prevPage = Math.max(1, page - 1);
   const nextPage = Math.min(totalPages, page + 1);
 
@@ -81,7 +76,7 @@ export function FullPagination({
   page,
   totalPages,
   makeHref,
-}: PaginationProps) {
+}: LinkPaginationProps) {
   const items = getPaginationItems(page, totalPages);
 
   return (

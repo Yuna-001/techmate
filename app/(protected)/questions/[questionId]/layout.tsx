@@ -1,3 +1,4 @@
+import { AnswerListDialog } from '@/components/answer/answer-list-dialog';
 import { BookmarkQuestionButton } from '@/components/bookmark/bookmark-question-button';
 import { RetryButton } from '@/components/common/retry-button';
 import { DeleteQuestionButton } from '@/components/question/delete-question-button';
@@ -42,15 +43,17 @@ export default async function QuestionLayout({
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4">
-        <div className="flex justify-end gap-3">
-          <BookmarkQuestionButton
-            questionId={questionId}
-            initialIsBookmarked={isBookmarked}
-            size={26}
-          />
-          <DeleteQuestionButton questionId={questionId} size={26} />
+        <div className="flex justify-between items-center">
+          <AnswerListDialog questionId={questionId} />
+          <div className="flex gap-3">
+            <BookmarkQuestionButton
+              questionId={questionId}
+              initialIsBookmarked={isBookmarked}
+              size={26}
+            />
+            <DeleteQuestionButton questionId={questionId} size={26} />
+          </div>
         </div>
-
         <QuestionDetailSection
           question={question}
           tags={tags}
