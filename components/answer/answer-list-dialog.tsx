@@ -26,7 +26,7 @@ interface AnswerListDialogProps {
 export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   const pathname = usePathname();
 
-  const [hasLoaded, setHasLoaded] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const [page, setPage] = useState<number>(1);
@@ -38,6 +38,7 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   const requestIdRef = useRef<number>(0);
 
   const fetchAnswers = useCallback(async () => {
+    setIsLoading(true);
     setError(null);
 
     const requestId = ++requestIdRef.current;
@@ -69,7 +70,7 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
       setError('네트워크 오류가 발생했습니다.');
     } finally {
       if (requestId === requestIdRef.current) {
-        setHasLoaded(true);
+        setIsLoading(false);
       }
     }
   }, [page, questionId]);
@@ -85,14 +86,24 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   }, [pathname]);
 
   const handleOpenChange = (nextOpen: boolean) => {
-    if (nextOpen) setPage(1);
+    if (nextOpen) {
+      setPage(1);
+      setIsLoading(true);
+    }
     setOpen(nextOpen);
     setError(null);
   };
 
+  const handlePageChange = (nextPage: number) => {
+    if (nextPage === page) return;
+
+    setIsLoading(true);
+    setPage(nextPage);
+  };
+
   const shouldShowTotalCount = totalCount !== undefined;
   const shouldShowPagination = totalPages !== undefined;
-  const shouldShowSkeleton = !hasLoaded;
+  const shouldShowSkeleton = isLoading;
 
   let description = null;
 
@@ -142,7 +153,7 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
       <DialogPagination
         page={page}
         totalPages={totalPages}
-        onPageChange={setPage}
+        onPageChange={handlePageChange}
       />
     );
   }
