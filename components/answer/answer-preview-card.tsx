@@ -19,11 +19,7 @@ export function AnswerPreviewCard({
       href={`/questions/${questionId}/answers/${answerId}`}
       className="group block rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
     >
-      <Card
-        className="h-full gap-0 border-slate-200 bg-white transition-colors duration-200
-                   group-hover:bg-slate-50 group-hover:dark:bg-slate-900
-                   dark:border-slate-800 dark:bg-slate-950"
-      >
+      <Card className="h-full gap-0 transition-colors hover:bg-accent duration-200">
         <CardHeader className="pb-3">
           <CardTitle className="line-clamp-2 text-sm font-normal leading-relaxed text-slate-900 dark:text-slate-100 max-sm:line-clamp-3">
             {content}

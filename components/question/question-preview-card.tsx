@@ -19,7 +19,7 @@ export function QuestionPreviewCard({
   const { questionId, content, tags, isBookmarked } = question;
 
   return (
-    <Card className="relative transition-colors hover:bg-accent/25">
+    <Card className="relative transition-colors hover:bg-accent duration-200">
       <Link
         href={`/questions/${questionId}`}
         className="absolute inset-0 z-0 rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
