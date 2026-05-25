@@ -14,20 +14,22 @@ jest.mock('@/lib/fetch/client', () => ({
   clientFetch: jest.fn(),
 }));
 
+const mockPush = jest.fn();
+
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: mockPush }),
+}));
+
 const mockClientFetch = clientFetch as unknown as MockClientFetch;
 
 const QUESTION_ID = 'q1';
 const ANSWER_ID = 'a1';
 
 describe('DeleteAnswerButton', () => {
-  const setup = (onSuccess?: () => void) => {
+  const setup = () => {
     const user = userEvent.setup();
     render(
-      <DeleteAnswerButton
-        questionId={QUESTION_ID}
-        answerId={ANSWER_ID}
-        onSuccess={onSuccess}
-      />,
+      <DeleteAnswerButton questionId={QUESTION_ID} answerId={ANSWER_ID} />,
     );
 
     return { user };
@@ -36,7 +38,7 @@ describe('DeleteAnswerButton', () => {
   const openDialog = async (user: ReturnType<typeof userEvent.setup>) => {
     await user.click(
       screen.getByRole('button', {
-        name: '답변 삭제',
+        name: '답변 삭제하기',
       }),
     );
 
@@ -48,6 +50,10 @@ describe('DeleteAnswerButton', () => {
 
   const getCancelButton = (dialog: HTMLElement) =>
     within(dialog).getByRole('button', { name: '취소' });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
   test('답변 삭제 버튼 클릭 시 AlertDialog가 열린다', async () => {
     const { user } = setup();
@@ -74,32 +80,21 @@ describe('DeleteAnswerButton', () => {
     expect(mockClientFetch).toHaveBeenCalledTimes(1);
   });
 
-  test('답변 삭제 성공 시 onSuccess 콜백을 호출한다', async () => {
-    mockClientFetch.mockResolvedValueOnce(SUCCESS_204);
-
-    const onSuccess = jest.fn();
-    const { user } = setup(onSuccess);
-    const dialog = await openDialog(user);
-
-    await user.click(getConfirmButton(dialog));
-
-    expect(onSuccess).toHaveBeenCalledTimes(1);
-  });
-
-  test('onSuccess가 없어도 삭제 성공 시 에러가 발생하지 않는다', async () => {
+  test('답변 삭제 성공 시 질문 상세 페이지로 이동한다', async () => {
     mockClientFetch.mockResolvedValueOnce(SUCCESS_204);
 
     const { user } = setup();
     const dialog = await openDialog(user);
 
-    await expect(user.click(getConfirmButton(dialog))).resolves.not.toThrow();
+    await user.click(getConfirmButton(dialog));
+
+    expect(mockPush).toHaveBeenCalledWith(`/questions/${QUESTION_ID}`);
   });
 
-  test('답변 삭제 요청이 실패하면 에러 토스트를 표시한다', async () => {
+  test('답변 삭제 요청이 실패하면 에러 토스트를 표시하고 이동하지 않는다', async () => {
     mockClientFetch.mockResolvedValueOnce(FAIL_500);
 
-    const onSuccess = jest.fn();
-    const { user } = setup(onSuccess);
+    const { user } = setup();
     const dialog = await openDialog(user);
 
     await user.click(getConfirmButton(dialog));
@@ -107,14 +102,13 @@ describe('DeleteAnswerButton', () => {
     expect(toast.error).toHaveBeenCalledWith('답변 삭제에 실패했습니다.', {
       description: '잠시 후 다시 시도해주세요.',
     });
-    expect(onSuccess).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
-  test('네트워크 오류 발생 시 에러 토스트를 표시한다', async () => {
+  test('네트워크 오류 발생 시 에러 토스트를 표시하고 이동하지 않는다', async () => {
     mockClientFetch.mockRejectedValueOnce(new Error());
 
-    const onSuccess = jest.fn();
-    const { user } = setup(onSuccess);
+    const { user } = setup();
     const dialog = await openDialog(user);
 
     await user.click(getConfirmButton(dialog));
@@ -122,10 +116,10 @@ describe('DeleteAnswerButton', () => {
     expect(toast.error).toHaveBeenCalledWith('네트워크 오류가 발생했습니다.', {
       description: '인터넷 연결을 확인한 후 다시 시도해주세요.',
     });
-    expect(onSuccess).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
-  test('취소 버튼을 누르면 답변 삭제 요청을 보내지 않는다', async () => {
+  test('취소 버튼을 누르면 답변 삭제 요청을 보내지 않고 이동하지 않는다', async () => {
     const { user } = setup();
     const dialog = await openDialog(user);
 
@@ -136,5 +130,6 @@ describe('DeleteAnswerButton', () => {
     });
 
     expect(mockClientFetch).not.toHaveBeenCalled();
+    expect(mockPush).not.toHaveBeenCalled();
   });
 });

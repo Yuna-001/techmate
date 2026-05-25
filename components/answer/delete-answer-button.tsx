@@ -11,26 +11,25 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Button } from '@/components/ui/button';
 import { clientFetch } from '@/lib/fetch/client';
 import { cn } from '@/lib/utils';
-import { Trash } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 type DeleteAnswerButtonProps = {
   questionId: string;
   answerId: string;
-  onSuccess?: () => void;
   className?: string;
-  size?: number;
 };
 
 export function DeleteAnswerButton({
   questionId,
   answerId,
-  onSuccess,
   className,
-  size = 32,
 }: DeleteAnswerButtonProps) {
+  const router = useRouter();
+
   const handleDeleteAnswer = async () => {
     try {
       const result = await clientFetch(
@@ -48,7 +47,7 @@ export function DeleteAnswerButton({
         return;
       }
 
-      onSuccess?.();
+      router.push(`/questions/${questionId}`);
     } catch {
       toast.error('네트워크 오류가 발생했습니다.', {
         description: '인터넷 연결을 확인한 후 다시 시도해주세요.',
@@ -59,16 +58,12 @@ export function DeleteAnswerButton({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <button
-          type="button"
-          aria-label="답변 삭제"
-          className={cn(
-            'cursor-pointer flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-            className,
-          )}
+        <Button
+          variant="outline"
+          className={cn('hover:text-destructive', className)}
         >
-          <Trash className="stroke-2" size={size} />
-        </button>
+          답변 삭제하기
+        </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
