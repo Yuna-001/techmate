@@ -2,19 +2,12 @@ import { requireUserId } from '@/lib/auth/requireUserId';
 import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
 import AnswerModel from '@/models/answer';
-import type { Feedback } from '@/models/answer';
-import type { AnswerResponse } from '@/types/answer';
+import type { AnswerDetailResponse } from '@/types/answer';
 import { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 
 type RouteParams = {
   params: Promise<{ questionId: string; answerId: string }>;
-};
-
-type AnswerDetailDoc = {
-  content: string;
-  feedback: Feedback;
-  createdAt: Date;
 };
 
 // GET /api/questions/[questionId]/answers/[answerId]
@@ -61,8 +54,8 @@ export async function GET(_req: Request, { params }: RouteParams) {
 
     const answer = await AnswerModel.findOne(
       { _id: answerId, userId, questionId },
-      { _id: 0, content: 1, feedback: 1, createdAt: 1 },
-    ).lean<AnswerDetailDoc | null>();
+      { _id: 0, content: 1, feedback: 1 },
+    ).lean<AnswerDetailResponse | null>();
 
     if (!answer) {
       return NextResponse.json(
@@ -71,12 +64,11 @@ export async function GET(_req: Request, { params }: RouteParams) {
       );
     }
 
-    const response: AnswerResponse = {
+    const response: AnswerDetailResponse = {
       ...answer,
-      createdAt: answer.createdAt.toISOString(),
     };
 
-    return NextResponse.json<AnswerResponse>(response, { status: 200 });
+    return NextResponse.json<AnswerDetailResponse>(response, { status: 200 });
   } catch (err) {
     console.error(
       `GET /api/questions/${questionId}/answers/${answerId} db error`,

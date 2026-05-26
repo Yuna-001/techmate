@@ -6,7 +6,7 @@ import { RetryButton } from '@/components/common/retry-button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { serverFetch } from '@/lib/fetch/server';
-import type { AnswerResponse } from '@/types/answer';
+import type { AnswerDetailResponse } from '@/types/answer';
 import { notFound } from 'next/navigation';
 
 export default async function FeedbackPage({
@@ -16,7 +16,7 @@ export default async function FeedbackPage({
 }) {
   const { questionId, answerId } = await params;
 
-  const result = await serverFetch<AnswerResponse>(
+  const result = await serverFetch<AnswerDetailResponse>(
     `/api/questions/${questionId}/answers/${answerId}`,
   );
 

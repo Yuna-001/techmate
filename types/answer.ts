@@ -10,8 +10,7 @@ export interface AnswerListItem {
 
 export type AnswerListResponse = PaginatedResponse<AnswerListItem>;
 
-export type AnswerResponse = {
+export type AnswerDetailResponse = {
   content: string;
   feedback: Feedback;
-  createdAt: string;
 };
