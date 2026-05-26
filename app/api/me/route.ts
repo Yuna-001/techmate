@@ -1,11 +1,7 @@
-import { authAdapter } from '@/lib/auth/adapter';
 import { requireUserId } from '@/lib/auth/requireUserId';
-import dbConnect from '@/lib/dbConnect';
+import client from '@/lib/db';
 import { HttpError } from '@/lib/error';
-import AnswerModel from '@/models/answer';
-import ProfileModel from '@/models/profile';
-import QuestionModel from '@/models/question';
-import mongoose from 'mongoose';
+import { ObjectId } from 'mongodb';
 import { NextResponse } from 'next/server';
 
 // DELETE /api/me
@@ -29,34 +25,37 @@ export async function DELETE() {
   }
 
   try {
-    if (!authAdapter.deleteUser) {
-      console.error('authAdapter.deleteUser is not implemented');
-
-      return NextResponse.json(
-        { error: '서버 에러가 발생했습니다.' },
-        { status: 500 },
-      );
-    }
-
-    await dbConnect();
-
-    const session = await mongoose.startSession();
+    const mongoClient = await client.connect();
+    const session = mongoClient.startSession();
+    const userObjectId = new ObjectId(userId);
 
     try {
       await session.withTransaction(async () => {
-        await AnswerModel.deleteMany({ userId }).session(session);
-        await QuestionModel.deleteMany({ userId }).session(session);
-        await ProfileModel.deleteOne({ userId }).session(session);
+        const db = mongoClient.db();
+
+        await db
+          .collection('answers')
+          .deleteMany({ userId: userObjectId }, { session });
+        await db
+          .collection('questions')
+          .deleteMany({ userId: userObjectId }, { session });
+        await db
+          .collection('profiles')
+          .deleteOne({ userId: userObjectId }, { session });
+        await db
+          .collection('accounts')
+          .deleteMany({ userId: userObjectId }, { session });
+        await db
+          .collection('users')
+          .deleteOne({ _id: userObjectId }, { session });
       });
     } finally {
       await session.endSession();
     }
 
-    await authAdapter.deleteUser(userId);
-
     return new NextResponse(null, { status: 204 });
   } catch (err) {
-    console.error('DELETE /api/me unexpected error', err);
+    console.error('DELETE /api/me db error', err);
 
     return NextResponse.json(
       { error: '서버 에러가 발생했습니다.' },
