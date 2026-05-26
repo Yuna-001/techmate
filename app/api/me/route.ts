@@ -2,7 +2,10 @@ import { authAdapter } from '@/lib/auth/adapter';
 import { requireUserId } from '@/lib/auth/requireUserId';
 import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
+import AnswerModel from '@/models/answer';
 import ProfileModel from '@/models/profile';
+import QuestionModel from '@/models/question';
+import mongoose from 'mongoose';
 import { NextResponse } from 'next/server';
 
 // DELETE /api/me
@@ -37,7 +40,17 @@ export async function DELETE() {
 
     await dbConnect();
 
-    await ProfileModel.deleteOne({ userId });
+    const session = await mongoose.startSession();
+
+    try {
+      await session.withTransaction(async () => {
+        await AnswerModel.deleteMany({ userId }).session(session);
+        await QuestionModel.deleteMany({ userId }).session(session);
+        await ProfileModel.deleteOne({ userId }).session(session);
+      });
+    } finally {
+      await session.endSession();
+    }
 
     await authAdapter.deleteUser(userId);
 
