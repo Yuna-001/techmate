@@ -1,8 +1,8 @@
+import { AnswerSection } from '@/components/answer/answer-section';
 import { DeleteAnswerButton } from '@/components/answer/delete-answer-button';
+import { FeedbackSection } from '@/components/answer/feedback-section';
 import { RetryAnswerButton } from '@/components/answer/retry-answer-button';
 import { RetryButton } from '@/components/common/retry-button';
-import { AnswerSection } from '@/components/feedback/answer-section';
-import { FeedbackSection } from '@/components/feedback/feedback-section';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { serverFetch } from '@/lib/fetch/server';

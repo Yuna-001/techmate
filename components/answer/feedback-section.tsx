@@ -1,5 +1,5 @@
+import { TagList } from '@/components/common/tag-list';
 import type { Feedback } from '@/models/answer';
-import { TagList } from '../common/tag-list';
 
 const getScoreColor = (score: number) => {
   if (score >= 80) return 'text-green-600 dark:text-green-400';
