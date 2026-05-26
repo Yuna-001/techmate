@@ -151,6 +151,31 @@ type GeneratedQuestion = {
   tags: string[];
 };
 
+const QUESTION_RESPONSE_FORMAT = {
+  type: 'json_schema',
+  name: 'generated_question',
+  strict: true,
+  schema: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      content: {
+        type: 'string',
+      },
+      idealAnswer: {
+        type: 'string',
+      },
+      tags: {
+        type: 'array',
+        items: {
+          type: 'string',
+        },
+      },
+    },
+    required: ['content', 'idealAnswer', 'tags'],
+  },
+} as const;
+
 /**
  * 사용자 소개 정보를 기반으로 OpenAI에 요청하여
  * 면접 질문/모범 답변/태그를 포함한 JSON 응답을 생성한다.
@@ -169,7 +194,7 @@ async function createQuestionResponse({
         role: 'system',
         content: [
           '당신은 기술 면접관입니다.',
-          '아래 후보자 프로필을 보고, 해당 후보에게 적절한 기술 면접 질문 하나를 만드세요.',
+          '아래 프로필을 보고 적절한 기술 면접 질문 하나를 만드세요.',
           '',
           '응답은 반드시 **JSON 형식**으로만 출력해야 합니다.',
           '다른 설명 문장(예: 설명 텍스트, 마크다운 등)은 절대 쓰지 마세요.',
@@ -183,6 +208,7 @@ async function createQuestionResponse({
           '',
           '규칙:',
           '- content와 idealAnswer는 모두 한국어 존댓말로 작성합니다.',
+          '- content에 지원자, 후보자, 사용자, 당신 같은 답변자 지칭 표현을 사용하지 마세요.',
           '- tags는 영어 소문자 기술 이름만 사용합니다. 예: ["react", "typescript", "nextjs", "frontend"].',
           '- 태그 개수는 1개 이상 5개 이하로 만듭니다.',
           '- user 메시지에는 "이미 받은 질문 목록"이 함께 제공될 수 있습니다.',
@@ -197,9 +223,10 @@ async function createQuestionResponse({
       },
     ],
     text: {
-      format: { type: 'json_object' },
+      format: QUESTION_RESPONSE_FORMAT,
     },
     max_output_tokens: maxTokens,
+    temperature: 0.5,
   });
 }
 
