@@ -3,7 +3,7 @@ import { MAX_EXPERIENCE } from '@/lib/constants/profile';
 import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
 import ProfileModel from '@/models/profile';
-import type { Profile, ProfileResponse } from '@/types/profile';
+import type { ProfileDoc, ProfileResponse } from '@/types/profile';
 import { NextResponse } from 'next/server';
 
 // GET /api/me/profile
@@ -35,7 +35,7 @@ export async function GET() {
     // 사용자 프로필 조회
     const profile = await ProfileModel.findOne({
       userId,
-    }).lean<Profile | null>();
+    }).lean<ProfileDoc | null>();
 
     // 프로필이 없으면 기본값 반환
     if (!profile) {
@@ -102,7 +102,7 @@ export async function PUT(req: Request) {
     return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
   }
 
-  const { position, experience, skills } = body as Partial<Profile>;
+  const { position, experience, skills } = body as Partial<ProfileDoc>;
 
   // position: 필수, 문자열, trim 후 비어있으면 안 됨
   const normalizedPosition =

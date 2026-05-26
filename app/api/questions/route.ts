@@ -4,7 +4,7 @@ import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
 import ProfileModel from '@/models/profile';
 import QuestionModel from '@/models/question';
-import type { Profile } from '@/types/profile';
+import type { ProfileDoc } from '@/types/profile';
 import { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 
@@ -231,7 +231,7 @@ export async function POST() {
     const [profile, prevQuestions] = await Promise.all([
       ProfileModel.findOne({
         userId,
-      }).lean<Profile | null>(),
+      }).lean<ProfileDoc | null>(),
       QuestionModel.find({ userId })
         .select('content')
         .sort({ createdAt: -1 })

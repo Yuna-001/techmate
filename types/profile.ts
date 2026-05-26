@@ -4,7 +4,7 @@ interface ProfileBase {
 }
 
 /** DB에 저장된 프로필 타입 (position 필수) */
-export interface Profile extends ProfileBase {
+export interface ProfileDoc extends ProfileBase {
   position: string;
 }
 

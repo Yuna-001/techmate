@@ -15,7 +15,7 @@ export function TagList({ tags, onRemove }: TagListProps) {
         <Badge
           key={`${tag}-${index}`}
           variant="secondary"
-          className="flex items-center justify-center gap-1 max-w-full cursor-default"
+          className="flex max-w-full cursor-default items-center justify-center gap-1 dark:border-border dark:bg-transparent dark:text-foreground"
         >
           <div className="truncate">{tag}</div>
           {onRemove && (
