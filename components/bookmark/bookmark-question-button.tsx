@@ -64,14 +64,17 @@ export function BookmarkQuestionButton({
       aria-pressed={isBookmarked}
       aria-label={isBookmarked ? '북마크 해제' : '북마크 추가'}
       className={cn(
-        'cursor-pointer flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+        'group cursor-pointer flex h-8 w-8 items-center justify-center rounded-md transition-colors hover:bg-orange-50 dark:hover:bg-orange-950/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
         className,
       )}
     >
       <Bookmark
-        className={`stroke-orange-400 stroke-2 ${
-          isBookmarked ? 'fill-orange-400' : 'fill-transparent'
-        }`}
+        className={cn(
+          'stroke-2 transition-colors',
+          isBookmarked
+            ? 'stroke-orange-400 fill-orange-400'
+            : 'stroke-muted-foreground fill-transparent group-hover:stroke-orange-400',
+        )}
         size={size}
       />
     </button>
