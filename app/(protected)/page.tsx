@@ -13,7 +13,9 @@ export default async function HomePage({
 
   return (
     <>
-      <CreateQuestionButton />
+      <div className="flex justify-center mt-10 mb-24">
+        <CreateQuestionButton />
+      </div>
       <QuestionList page={page} bookmarkFilter={bookmarkFilter} />
     </>
   );
