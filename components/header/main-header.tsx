@@ -12,7 +12,7 @@ export function MainHeader() {
           width={40}
           height={40}
           priority
-          className="h-10 w-auto"
+          className="h-10 w-auto dark:brightness-0 dark:invert"
         />
         <span className="font-lexend text-3xl">Quervu</span>
       </Link>
