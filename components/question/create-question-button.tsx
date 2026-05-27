@@ -2,6 +2,7 @@
 
 import { LoadingButton } from '@/components/common/loading-button';
 import { clientFetch } from '@/lib/fetch/client';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -12,7 +13,13 @@ const CREATING_STATUS_MESSAGES = [
   '질문을 다듬는 중...',
 ] as const;
 
-export function CreateQuestionButton() {
+type CreateQuestionButtonProps = {
+  hasProfile?: boolean;
+};
+
+export function CreateQuestionButton({
+  hasProfile = true,
+}: CreateQuestionButtonProps) {
   const router = useRouter();
   const [isCreating, setIsCreating] = useState<boolean>(false);
   const [statusIndex, setStatusIndex] = useState<number>(0);
@@ -33,6 +40,7 @@ export function CreateQuestionButton() {
   }, [isCreating]);
 
   const handleCreateQuestion = async () => {
+    if (!hasProfile) return;
     if (isCreating) return;
 
     let navigated = false;
@@ -68,22 +76,37 @@ export function CreateQuestionButton() {
   };
 
   return (
-    <div className="relative inline-flex">
-      <LoadingButton
-        onClick={handleCreateQuestion}
-        isLoading={isCreating}
-        loadingText="기술 질문 생성 중..."
-      >
-        기술 질문 생성하기
-      </LoadingButton>
-      {isCreating && (
-        <p
-          aria-live="polite"
-          className="text-muted-foreground absolute top-full left-1/2 mt-2 w-max -translate-x-1/2 text-xs"
-        >
-          {CREATING_STATUS_MESSAGES[statusIndex]}
+    <div className="flex flex-col items-center gap-2">
+      {!hasProfile && (
+        <p className="text-muted-foreground text-sm">
+          기술 질문 생성을 위해{' '}
+          <Link
+            href="/setting/profile/edit"
+            className="text-primary rounded-sm px-0.5 font-medium"
+          >
+            프로필 설정
+          </Link>
+          이 필요합니다.
         </p>
       )}
+      <div className="relative inline-flex">
+        <LoadingButton
+          onClick={handleCreateQuestion}
+          isLoading={isCreating}
+          loadingText="기술 질문 생성 중..."
+          disabled={!hasProfile}
+        >
+          기술 질문 생성하기
+        </LoadingButton>
+        {isCreating && (
+          <p
+            aria-live="polite"
+            className="text-muted-foreground absolute top-full left-1/2 mt-2 w-max -translate-x-1/2 text-xs"
+          >
+            {CREATING_STATUS_MESSAGES[statusIndex]}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
