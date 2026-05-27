@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 const CREATING_STATUS_MESSAGES = [
   '기술 스택을 훑어보는 중...',
-  '꼬리질문 후보를 정리하는 중...',
+  '질문 초안을 구상하는 중...',
   '질문을 다듬는 중...',
 ] as const;
 
