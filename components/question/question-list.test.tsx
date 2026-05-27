@@ -17,10 +17,6 @@ jest.mock('@/components/question/question-preview-card', () => ({
   }) => <a href={`/questions/${question.questionId}`}>{question.content}</a>,
 }));
 
-jest.mock('../bookmark/bookmarked-question-filter', () => ({
-  BookmarkedQuestionFilter: () => <button>북마크 필터</button>,
-}));
-
 jest.mock('@/components/common/responsive-pagination', () => ({
   ResponsivePagination: ({
     page,
@@ -85,6 +81,7 @@ describe('QuestionList', () => {
     expect(
       screen.getByText('아직 생성된 질문이 없습니다.'),
     ).toBeInTheDocument();
+    expect(screen.getByText('0')).toBeInTheDocument();
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
 
@@ -96,6 +93,7 @@ describe('QuestionList', () => {
     expect(
       screen.queryByText('아직 생성된 질문이 없습니다.'),
     ).not.toBeInTheDocument();
+    expect(screen.getByText(String(QUESTIONS.length))).toBeInTheDocument();
 
     const list = screen.getByRole('list');
     const items = within(list).getAllByRole('listitem');
