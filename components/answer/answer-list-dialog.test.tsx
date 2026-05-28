@@ -305,6 +305,40 @@ describe('AnswerListDialog', () => {
     expect(await screen.findByText('첫 번째 답변')).toBeInTheDocument();
   });
 
+  test('페이지 변경 요청이 실패한 뒤 다시 시도하면 실패한 현재 페이지를 다시 요청한다', async () => {
+    mockClientFetch
+      .mockResolvedValueOnce(PAGE_1_RESPONSE)
+      .mockResolvedValueOnce(FAIL_500)
+      .mockResolvedValueOnce(PAGE_2_RESPONSE);
+    const { user } = renderAnswerListDialog();
+
+    await openDialog(user);
+    expect(await screen.findByText('첫 번째 답변')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '2페이지' }));
+    await screen.findByText('답변 목록을 가져오는 데 실패했습니다.');
+
+    await user.click(screen.getByRole('button', { name: '다시 시도' }));
+
+    expect(mockClientFetch).toHaveBeenCalledTimes(3);
+    expect(mockClientFetch).toHaveBeenLastCalledWith(
+      `/api/questions/${QUESTION_ID}/answers?limit=2&page=2`,
+    );
+    expect(await screen.findByText('세 번째 답변')).toBeInTheDocument();
+  });
+
+  test('현재 페이지를 다시 클릭하면 답변 목록을 재요청하지 않는다', async () => {
+    mockClientFetch.mockResolvedValueOnce(PAGE_1_RESPONSE);
+    const { user } = renderAnswerListDialog();
+
+    await openDialog(user);
+    expect(await screen.findByText('첫 번째 답변')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '1페이지' }));
+
+    expect(mockClientFetch).toHaveBeenCalledTimes(1);
+  });
+
   test('다이얼로그를 닫았다가 다시 열면 page를 1로 초기화한다', async () => {
     mockClientFetch
       .mockResolvedValueOnce(PAGE_1_RESPONSE)
@@ -346,6 +380,32 @@ describe('AnswerListDialog', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
+  });
+
+  test('다이얼로그를 닫은 뒤 이전 응답이 늦게 도착해도 다음 열기 결과를 유지한다', async () => {
+    const closedDialogDeferred = createDeferred<
+      FetchSuccessResult<AnswerListResponse> | FetchErrorResult
+    >();
+    mockClientFetch
+      .mockReturnValueOnce(closedDialogDeferred.promise)
+      .mockResolvedValueOnce(NEXT_QUESTION_RESPONSE);
+    const { user } = renderAnswerListDialog();
+
+    await openDialog(user);
+
+    const dialog = screen.getByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    closedDialogDeferred.resolve(PAGE_1_RESPONSE);
+
+    await openDialog(user);
+
+    expect(await screen.findByText('최신 요청 답변')).toBeInTheDocument();
+    expect(screen.queryByText('첫 번째 답변')).not.toBeInTheDocument();
   });
 
   test.each([
