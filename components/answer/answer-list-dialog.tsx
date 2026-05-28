@@ -15,7 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { clientFetch } from '@/lib/fetch/client';
 import type { AnswerListItem, AnswerListResponse } from '@/types/answer';
 import { usePathname } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const DEFAULT_ANSWERS_PAGE_SIZE = 2;
 
@@ -25,6 +25,17 @@ const getAnswerPageSize = (height: number): number => {
   return DEFAULT_ANSWERS_PAGE_SIZE;
 };
 
+type FetchState =
+  | { status: 'loading' }
+  | { status: 'error'; message: string }
+  | {
+      status: 'loaded';
+      isRefetching: boolean;
+      items: AnswerListItem[];
+      totalPages: number;
+      totalCount: number;
+    };
+
 interface AnswerListDialogProps {
   questionId: string;
 }
@@ -32,21 +43,20 @@ interface AnswerListDialogProps {
 export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   const pathname = usePathname();
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(DEFAULT_ANSWERS_PAGE_SIZE);
-  const [totalPages, setTotalPages] = useState<number>();
-  const [totalCount, setTotalCount] = useState<number>();
   const [open, setOpen] = useState(false);
-  const [answers, setAnswers] = useState<AnswerListItem[]>([]);
+  const [openedPathname, setOpenedPathname] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(DEFAULT_ANSWERS_PAGE_SIZE);
+  const [retryKey, setRetryKey] = useState(0);
+  const [fetchState, setFetchState] = useState<FetchState>({
+    status: 'loading',
+  });
 
   const requestIdRef = useRef<number>(0);
+  const isDialogOpen = open && openedPathname === pathname;
 
-  const fetchAnswers = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
+  useEffect(() => {
+    if (!isDialogOpen) return;
 
     const requestId = ++requestIdRef.current;
 
@@ -55,121 +65,73 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
       page: String(page),
     });
 
-    try {
-      const result = await clientFetch<AnswerListResponse>(
-        `/api/questions/${questionId}/answers?${qs}`,
-      );
+    void clientFetch<AnswerListResponse>(
+      `/api/questions/${questionId}/answers?${qs}`,
+    )
+      .then((result) => {
+        if (requestId !== requestIdRef.current) return;
 
-      if (requestId !== requestIdRef.current) return;
+        if (!result.ok || !result.data) {
+          setFetchState({
+            status: 'error',
+            message: '답변 목록을 가져오는 데 실패했습니다.',
+          });
+          return;
+        }
 
-      if (!result.ok || !result.data) {
-        setError('답변 목록을 가져오는 데 실패했습니다.');
-        setAnswers([]);
-        return;
-      }
-
-      const data = result.data;
-      setAnswers(data.items);
-      setTotalPages(data.totalPages);
-      setTotalCount(data.totalCount);
-    } catch {
-      if (requestId !== requestIdRef.current) return;
-      setError('네트워크 오류가 발생했습니다.');
-    } finally {
-      if (requestId === requestIdRef.current) {
-        setIsLoading(false);
-      }
-    }
-  }, [page, pageSize, questionId]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    fetchAnswers();
-  }, [fetchAnswers, open]);
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+        const { items, totalPages, totalCount } = result.data;
+        setFetchState({
+          status: 'loaded',
+          isRefetching: false,
+          items,
+          totalPages,
+          totalCount,
+        });
+      })
+      .catch(() => {
+        if (requestId !== requestIdRef.current) return;
+        setFetchState({
+          status: 'error',
+          message: '네트워크 오류가 발생했습니다.',
+        });
+      });
+  }, [isDialogOpen, page, pageSize, questionId, retryKey]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
+      setOpenedPathname(pathname);
       setPage(1);
       setPageSize(getAnswerPageSize(window.innerHeight));
-      setIsLoading(true);
+      setFetchState({ status: 'loading' });
+    } else {
+      requestIdRef.current += 1;
     }
     setOpen(nextOpen);
-    setError(null);
   };
 
   const handlePageChange = (nextPage: number) => {
     if (nextPage === page) return;
-
-    setIsLoading(true);
+    setFetchState((prev) =>
+      prev.status === 'loaded' ? { ...prev, isRefetching: true } : prev,
+    );
     setPage(nextPage);
   };
 
-  const shouldShowTotalCount = totalCount !== undefined;
-  const shouldShowPagination = totalPages !== undefined;
-  const shouldShowInitialSkeleton =
-    !error && isLoading && !shouldShowTotalCount && !shouldShowPagination;
-  const shouldShowContentSkeleton = isLoading;
-
-  let description = null;
-
-  if (shouldShowInitialSkeleton) {
-    description = <Skeleton className="h-4 w-20" />;
-  } else if (!error && shouldShowTotalCount) {
-    description = (
-      <DialogDescription className="text-left">
-        총 {totalCount}개
-      </DialogDescription>
+  const handleRetry = () => {
+    setFetchState((prev) =>
+      prev.status === 'loaded'
+        ? { ...prev, isRefetching: true }
+        : { status: 'loading' },
     );
-  }
+    setRetryKey((prev) => prev + 1);
+  };
 
-  let content;
-
-  if (error) {
-    content = (
-      <div className="flex flex-col gap-4 text-sm text-center">
-        <p className="py-10 text-slate-700">{error}</p>
-        <Button variant="outline" size="sm" onClick={fetchAnswers}>
-          다시 시도
-        </Button>
-      </div>
-    );
-  } else if (shouldShowContentSkeleton) {
-    content = (
-      <div className="flex flex-col gap-4">
-        {Array.from({ length: pageSize }).map((_, idx) => (
-          <Skeleton key={idx} className="h-32 w-full" />
-        ))}
-      </div>
-    );
-  } else {
-    content = <AnswerList questionId={questionId} items={answers} />;
-  }
-
-  let pagination = null;
-
-  if (shouldShowInitialSkeleton) {
-    pagination = (
-      <div className="flex justify-center">
-        <Skeleton className="h-8 w-2/3" />
-      </div>
-    );
-  } else if (!error && shouldShowPagination) {
-    pagination = (
-      <DialogPagination
-        page={page}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
-    );
-  }
+  const isContentLoading =
+    fetchState.status === 'loading' ||
+    (fetchState.status === 'loaded' && fetchState.isRefetching);
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" className="font-normal text-sm">
           답변 목록
@@ -184,12 +146,46 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
           <DialogTitle className="font-normal text-base text-left">
             내가 작성한 답변 목록
           </DialogTitle>
-          {description}
+          {fetchState.status === 'loading' && <Skeleton className="h-4 w-20" />}
+          {fetchState.status === 'loaded' && (
+            <DialogDescription className="text-left">
+              총 {fetchState.totalCount}개
+            </DialogDescription>
+          )}
         </DialogHeader>
 
         <div className="flex flex-col gap-4">
-          {content}
-          {pagination}
+          {isContentLoading && (
+            <div className="flex flex-col gap-4">
+              {Array.from({ length: pageSize }).map((_, idx) => (
+                <Skeleton key={idx} className="h-32 w-full" />
+              ))}
+            </div>
+          )}
+          {fetchState.status === 'error' && (
+            <div className="flex flex-col gap-4 text-sm text-center">
+              <p className="py-10 text-slate-700">{fetchState.message}</p>
+              <Button variant="outline" size="sm" onClick={handleRetry}>
+                다시 시도
+              </Button>
+            </div>
+          )}
+          {fetchState.status === 'loaded' && !fetchState.isRefetching && (
+            <AnswerList questionId={questionId} items={fetchState.items} />
+          )}
+
+          {fetchState.status === 'loading' && (
+            <div className="flex justify-center">
+              <Skeleton className="h-8 w-2/3" />
+            </div>
+          )}
+          {fetchState.status === 'loaded' && (
+            <DialogPagination
+              page={page}
+              totalPages={fetchState.totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
         </div>
       </DialogContent>
     </Dialog>
