@@ -132,9 +132,18 @@ const openDialog = async (user: ReturnType<typeof userEvent.setup>) => {
   await user.click(screen.getByRole('button', { name: '답변 목록' }));
 };
 
+const setViewportHeight = (height: number) => {
+  Object.defineProperty(window, 'innerHeight', {
+    value: height,
+    configurable: true,
+    writable: true,
+  });
+};
+
 describe('AnswerListDialog', () => {
   beforeEach(() => {
     mockUsePathname.mockReturnValue(`/questions/${QUESTION_ID}`);
+    setViewportHeight(600);
   });
 
   test('초기 렌더링 시 다이얼로그는 닫혀 있고 API를 호출하지 않는다', () => {
@@ -308,6 +317,25 @@ describe('AnswerListDialog', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
+
+  test.each([
+    { height: 600, expectedLimit: 2 },
+    { height: 740, expectedLimit: 3 },
+    { height: 900, expectedLimit: 4 },
+  ])(
+    '뷰포트 높이 $height px에서 다이얼로그를 열면 limit=$expectedLimit 로 요청한다',
+    async ({ height, expectedLimit }) => {
+      setViewportHeight(height);
+      mockClientFetch.mockResolvedValueOnce(PAGE_1_RESPONSE);
+      const { user } = renderAnswerListDialog();
+
+      await openDialog(user);
+
+      expect(mockClientFetch).toHaveBeenCalledWith(
+        `/api/questions/${QUESTION_ID}/answers?limit=${expectedLimit}&page=1`,
+      );
+    },
+  );
 
   test('이전 요청이 늦게 끝나도 최신 요청 결과만 반영한다', async () => {
     const firstQuestionDeferred = createDeferred<

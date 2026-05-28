@@ -17,7 +17,13 @@ import type { AnswerListItem, AnswerListResponse } from '@/types/answer';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-const ANSWERS_PAGE_SIZE = 2;
+const DEFAULT_ANSWERS_PAGE_SIZE = 2;
+
+const getAnswerPageSize = (height: number): number => {
+  if (height >= 900) return 4;
+  if (height >= 740) return 3;
+  return DEFAULT_ANSWERS_PAGE_SIZE;
+};
 
 interface AnswerListDialogProps {
   questionId: string;
@@ -30,6 +36,7 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   const [error, setError] = useState<string | null>(null);
 
   const [page, setPage] = useState<number>(1);
+  const [pageSize, setPageSize] = useState<number>(DEFAULT_ANSWERS_PAGE_SIZE);
   const [totalPages, setTotalPages] = useState<number>();
   const [totalCount, setTotalCount] = useState<number>();
   const [open, setOpen] = useState(false);
@@ -44,7 +51,7 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
     const requestId = ++requestIdRef.current;
 
     const qs = new URLSearchParams({
-      limit: String(ANSWERS_PAGE_SIZE),
+      limit: String(pageSize),
       page: String(page),
     });
 
@@ -73,7 +80,7 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
         setIsLoading(false);
       }
     }
-  }, [page, questionId]);
+  }, [page, pageSize, questionId]);
 
   useEffect(() => {
     if (!open) return;
@@ -88,6 +95,7 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
       setPage(1);
+      setPageSize(getAnswerPageSize(window.innerHeight));
       setIsLoading(true);
     }
     setOpen(nextOpen);
@@ -131,7 +139,7 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   } else if (shouldShowSkeleton) {
     content = (
       <div className="flex flex-col gap-4">
-        {Array.from({ length: ANSWERS_PAGE_SIZE }).map((_, idx) => (
+        {Array.from({ length: pageSize }).map((_, idx) => (
           <Skeleton key={idx} className="h-32 w-full" />
         ))}
       </div>
@@ -166,7 +174,10 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-4/5" aria-describedby={undefined}>
+      <DialogContent
+        className="max-h-4/5 overflow-y-auto"
+        aria-describedby={undefined}
+      >
         <DialogHeader>
           <DialogTitle className="font-normal text-base text-left">
             내가 작성한 답변 목록
