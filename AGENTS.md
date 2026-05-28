@@ -12,10 +12,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 - `feat`: 새로운 기능 추가
 - `fix`: 버그 수정
-- `refactor`: 리팩토링
+- `refactor`: 프로덕션 코드의 동작 변경 없이 구조를 개선하는 경우
+  단, 테스트 파일이나 테스트 유틸만 변경하는 리팩토링은 `test`를 사용한다.
 - `style`: CSS, Tailwind 클래스 등 사용자 UI 디자인 변경
 - `comment`: 코드 주석 추가 및 변경
-- `test`: 테스트 코드 추가, 수정, 삭제 등 비즈니스 로직에 변경이 없는 경우
+- `test`: 테스트 파일, 테스트 유틸, fixture, mock, 테스트 설정 등 테스트 관련 코드만 변경하는 경우
+  예: 테스트 추가, 수정, 삭제, 테스트 코드 리팩토링, 테스트 이름/변수명/상수명 정리
 - `chore`: 위 타입에 해당하지 않는 기타 변경사항  
   예: 빌드 스크립트 수정, 이미지 에셋 변경, 패키지 매니저 관련 변경
 - `rename`: 파일 또는 폴더명을 수정하거나 옮기는 경우
