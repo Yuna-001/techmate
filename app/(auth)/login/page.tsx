@@ -12,7 +12,7 @@ import Image from 'next/image';
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-linear-to-br from-background via-blue-100 to-background dark:via-indigo-950">
+    <div className="flex min-h-screen flex-col bg-linear-to-br from-background via-sky-100 to-background dark:via-sky-950">
       <header className="flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-2">
           <Image

@@ -35,6 +35,28 @@ const SUCCESS_200 = {
 } as const;
 
 describe('CreateQuestionButton', () => {
+  test('프로필이 설정되지 않으면 안내 문구와 프로필 설정 링크를 표시하고 버튼을 비활성화한다', async () => {
+    const user = userEvent.setup();
+
+    render(<CreateQuestionButton hasProfile={false} />);
+
+    expect(screen.getByText(/기술 질문 생성을 위해/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '프로필 설정' })).toHaveAttribute(
+      'href',
+      '/setting/profile/edit',
+    );
+
+    const createButton = screen.getByRole('button', {
+      name: /기술 질문 생성하기/,
+    });
+
+    expect(createButton).toBeDisabled();
+
+    await user.click(createButton);
+
+    expect(mockClientFetch).not.toHaveBeenCalled();
+  });
+
   test('버튼 클릭 시 질문 생성 API를 POST로 호출한다', async () => {
     mockClientFetch.mockResolvedValueOnce(SUCCESS_200);
 
@@ -44,7 +66,7 @@ describe('CreateQuestionButton', () => {
 
     await user.click(
       screen.getByRole('button', {
-        name: /새로운 질문 생성/,
+        name: /기술 질문 생성하기/,
       }),
     );
 
@@ -62,7 +84,7 @@ describe('CreateQuestionButton', () => {
 
     await user.click(
       screen.getByRole('button', {
-        name: /새로운 질문 생성/,
+        name: /기술 질문 생성하기/,
       }),
     );
 
@@ -78,11 +100,11 @@ describe('CreateQuestionButton', () => {
 
     await user.click(
       screen.getByRole('button', {
-        name: /새로운 질문 생성/,
+        name: /기술 질문 생성하기/,
       }),
     );
 
-    expect(toast.error).toHaveBeenCalledWith('질문 생성에 실패했습니다.', {
+    expect(toast.error).toHaveBeenCalledWith('기술 질문 생성에 실패했습니다.', {
       description: '잠시 후 다시 시도해주세요.',
     });
   });
@@ -96,7 +118,7 @@ describe('CreateQuestionButton', () => {
 
     await user.click(
       screen.getByRole('button', {
-        name: /새로운 질문 생성/,
+        name: /기술 질문 생성하기/,
       }),
     );
 
@@ -116,16 +138,19 @@ describe('CreateQuestionButton', () => {
     render(<CreateQuestionButton />);
 
     const createButton = screen.getByRole('button', {
-      name: /새로운 질문 생성/,
+      name: /기술 질문 생성하기/,
     });
 
     await user.click(createButton);
 
     expect(mockClientFetch).toHaveBeenCalledTimes(1);
 
-    const loadingButton = screen.getByRole('button', { name: /질문 생성 중/ });
+    const loadingButton = screen.getByRole('button', {
+      name: /기술 질문 생성 중/,
+    });
 
     expect(loadingButton).toBeDisabled();
+    expect(screen.getByText('기술 스택을 훑어보는 중...')).toBeInTheDocument();
     expect(mockPush).not.toHaveBeenCalled();
 
     deferred.resolve(SUCCESS_200);
@@ -145,7 +170,7 @@ describe('CreateQuestionButton', () => {
     render(<CreateQuestionButton />);
 
     const createButton = screen.getByRole('button', {
-      name: /새로운 질문 생성/,
+      name: /기술 질문 생성하기/,
     });
 
     await user.click(createButton);
@@ -157,10 +182,13 @@ describe('CreateQuestionButton', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByRole('button', { name: /새로운 질문 생성/ }),
+        screen.getByRole('button', { name: /기술 질문 생성하기/ }),
       ).toBeEnabled();
     });
 
+    expect(
+      screen.queryByText('기술 스택을 훑어보는 중...'),
+    ).not.toBeInTheDocument();
     expect(mockPush).not.toHaveBeenCalled();
   });
 });

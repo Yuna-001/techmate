@@ -5,7 +5,6 @@ import { RetryButton } from '@/components/common/retry-button';
 import { QuestionPreviewCard } from '@/components/question/question-preview-card';
 import { serverFetch } from '@/lib/fetch/server';
 import type { QuestionListResponse } from '@/types/question';
-import { BookmarkedQuestionFilter } from '../bookmark/bookmarked-question-filter';
 
 const QUESTIONS_PAGE_SIZE = 5;
 
@@ -44,27 +43,24 @@ export async function QuestionList({
   const { items, totalCount, totalPages } = result.data;
 
   return (
-    <section className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">질문 목록</h2>
-          <p className="text-sm text-muted-foreground">
-            총 <span className="font-medium text-foreground">{totalCount}</span>
-            개
-          </p>
-        </div>
-        <div className="flex justify-end">
-          <BookmarkedQuestionFilter />
-        </div>
-      </div>
+    <>
+      <p className="text-right text-sm text-muted-foreground">
+        총 <span className="font-medium text-foreground">{totalCount}</span>개
+      </p>
 
-      <ul className="flex flex-col gap-6">
-        {items.map((item) => (
-          <li key={item.questionId}>
-            <QuestionPreviewCard question={item} />
-          </li>
-        ))}
-      </ul>
+      {items.length === 0 ? (
+        <p className="py-10 text-center text-sm text-muted-foreground">
+          아직 생성된 질문이 없습니다.
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-6">
+          {items.map((item) => (
+            <li key={item.questionId}>
+              <QuestionPreviewCard question={item} />
+            </li>
+          ))}
+        </ul>
+      )}
 
       <ResponsivePagination
         page={page}
@@ -75,6 +71,6 @@ export async function QuestionList({
           return `/?${qs.toString()}`;
         }}
       />
-    </section>
+    </>
   );
 }

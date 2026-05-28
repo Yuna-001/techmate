@@ -10,7 +10,7 @@ export function AnswerList({
 }) {
   if (items.length === 0) {
     return (
-      <p className="py-10 text-center text-sm text-slate-700">
+      <p className="py-10 text-center text-sm text-muted-foreground">
         아직 작성한 답변이 없습니다.
       </p>
     );
