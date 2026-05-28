@@ -5,8 +5,8 @@ import type { AccountProvider, AccountResponse } from '@/types/account';
 import { ObjectId } from 'mongodb';
 import { NextResponse } from 'next/server';
 
-type UserAccountDoc = {
-  createdAt: Date;
+type UserDoc = {
+  createdAt?: Date;
 };
 
 type AccountDoc = {
@@ -44,7 +44,7 @@ export async function GET() {
 
     const [user, account] = await Promise.all([
       db
-        .collection<UserAccountDoc>('users')
+        .collection<UserDoc>('users')
         .findOne({ _id: userObjectId }, { projection: { createdAt: 1 } }),
       db
         .collection<AccountDoc>('accounts')
@@ -66,7 +66,7 @@ export async function GET() {
 
     return NextResponse.json<AccountResponse>({
       provider,
-      createdAt: user.createdAt.toISOString(),
+      createdAt: user.createdAt ? user.createdAt.toISOString() : null,
     });
   } catch (err) {
     console.error('GET /api/me db error', err);

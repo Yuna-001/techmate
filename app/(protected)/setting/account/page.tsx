@@ -17,6 +17,18 @@ const getProviderLabel = (provider: AccountProvider | null) => {
   return PROVIDER_LABEL[provider];
 };
 
+const getJoinedAtLabel = (createdAt: string | null) => {
+  if (!createdAt) {
+    return '알 수 없음';
+  }
+
+  return new Date(createdAt).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
 export default async function AccountPage() {
   const result = await serverFetch<AccountResponse>('/api/me', {
     cache: 'no-store',
@@ -35,11 +47,7 @@ export default async function AccountPage() {
 
   const { provider, createdAt } = result.data;
   const providerLabel = getProviderLabel(provider);
-  const joinedAt = new Date(createdAt).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const joinedAt = getJoinedAtLabel(createdAt);
 
   return (
     <div className="flex flex-col gap-5">
