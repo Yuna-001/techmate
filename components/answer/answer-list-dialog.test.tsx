@@ -109,14 +109,26 @@ const PAGE_2_RESPONSE = createResponse({
   ],
 });
 
+const PAGE_3_RESPONSE = createResponse({
+  page: 3,
+  items: [
+    {
+      answerId: 'answer-4',
+      content: '네 번째 답변',
+      score: 90,
+      createdAt: '2026-05-25T03:00:00.000Z',
+    },
+  ],
+});
+
 const NEXT_QUESTION_RESPONSE = createResponse({
   page: 1,
   items: [
     {
-      answerId: 'answer-4',
+      answerId: 'answer-5',
       content: '최신 요청 답변',
       score: 88,
-      createdAt: '2026-05-25T03:00:00.000Z',
+      createdAt: '2026-05-25T04:00:00.000Z',
     },
   ],
 });
@@ -335,7 +347,39 @@ describe('AnswerListDialog', () => {
     },
   );
 
-  test('이전 요청이 늦게 끝나도 최신 요청 결과만 반영한다', async () => {
+  test('연속으로 페이지를 변경했을 때 이전 페이지 응답이 늦게 도착해도 마지막으로 요청한 페이지를 유지한다', async () => {
+    const page2Deferred = createDeferred<
+      FetchSuccessResult<AnswerListResponse> | FetchErrorResult
+    >();
+    const page3Deferred = createDeferred<
+      FetchSuccessResult<AnswerListResponse> | FetchErrorResult
+    >();
+    mockClientFetch
+      .mockResolvedValueOnce(PAGE_1_RESPONSE)
+      .mockReturnValueOnce(page2Deferred.promise)
+      .mockReturnValueOnce(page3Deferred.promise);
+    const { user } = renderAnswerListDialog();
+
+    await openDialog(user);
+    expect(await screen.findByText('첫 번째 답변')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: '2페이지' }));
+    await user.click(screen.getByRole('button', { name: '3페이지' }));
+
+    page3Deferred.resolve(PAGE_3_RESPONSE);
+    expect(await screen.findByText('네 번째 답변')).toBeInTheDocument();
+    expect(screen.getByText('pagination: 3 / 3')).toBeInTheDocument();
+
+    page2Deferred.resolve(PAGE_2_RESPONSE);
+
+    await waitFor(() => {
+      expect(screen.getByText('네 번째 답변')).toBeInTheDocument();
+      expect(screen.queryByText('세 번째 답변')).not.toBeInTheDocument();
+      expect(screen.getByText('pagination: 3 / 3')).toBeInTheDocument();
+    });
+  });
+
+  test('questionId가 변경됐을 때 이전 질문 응답이 늦게 도착해도 새 질문 결과를 유지한다', async () => {
     const firstQuestionDeferred = createDeferred<
       FetchSuccessResult<AnswerListResponse> | FetchErrorResult
     >();
