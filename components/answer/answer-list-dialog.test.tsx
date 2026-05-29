@@ -383,7 +383,7 @@ describe('AnswerListDialog', () => {
     );
   });
 
-  test('pathname이 변경되면 열린 다이얼로그를 닫는다', async () => {
+  test('pathname이 변경되면 열린 다이얼로그를 닫고 원래 경로로 돌아와도 다시 열지 않는다', async () => {
     mockClientFetch.mockResolvedValueOnce(PAGE_1_RESPONSE);
     const { rerender, user } = renderAnswerListDialog();
 
@@ -396,6 +396,41 @@ describe('AnswerListDialog', () => {
     await waitFor(() => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
+
+    mockUsePathname.mockReturnValue(`/questions/${QUESTION_ID}`);
+    rerender(<AnswerListDialog questionId={QUESTION_ID} />);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(mockClientFetch).toHaveBeenCalledTimes(1);
+  });
+
+  test('pathname 변경 뒤 이전 응답이 늦게 도착해도 다시 열기 결과를 유지한다', async () => {
+    const changedPathnameDeferred = createDeferred<AnswerListFetchResult>();
+    mockClientFetch
+      .mockReturnValueOnce(changedPathnameDeferred.promise)
+      .mockResolvedValueOnce(REOPENED_DIALOG_RESPONSE);
+    const { rerender, user } = renderAnswerListDialog();
+
+    await openDialog(user);
+
+    mockUsePathname.mockReturnValue(
+      `/questions/${QUESTION_ID}/answers/answer-1`,
+    );
+    rerender(<AnswerListDialog questionId={QUESTION_ID} />);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+
+    changedPathnameDeferred.resolve(PAGE_1_RESPONSE);
+
+    mockUsePathname.mockReturnValue(`/questions/${QUESTION_ID}`);
+    rerender(<AnswerListDialog questionId={QUESTION_ID} />);
+
+    await openDialog(user);
+
+    expect(await screen.findByText('다시 열기 요청 답변')).toBeInTheDocument();
+    expect(screen.queryByText('첫 번째 답변')).not.toBeInTheDocument();
   });
 
   test('다이얼로그를 닫은 뒤 이전 응답이 늦게 도착해도 다시 열기 결과를 유지한다', async () => {

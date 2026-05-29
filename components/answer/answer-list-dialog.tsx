@@ -43,8 +43,15 @@ interface AnswerListDialogProps {
 export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   const pathname = usePathname();
 
+  return <AnswerListDialogContent key={pathname} questionId={questionId} />;
+}
+
+interface AnswerListDialogContentProps {
+  questionId: string;
+}
+
+function AnswerListDialogContent({ questionId }: AnswerListDialogContentProps) {
   const [open, setOpen] = useState(false);
-  const [openedPathname, setOpenedPathname] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(DEFAULT_ANSWERS_PAGE_SIZE);
   const [retryKey, setRetryKey] = useState(0);
@@ -53,22 +60,23 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   });
 
   const requestIdRef = useRef<number>(0);
-  const isDialogOpen = open && openedPathname === pathname;
 
   useEffect(() => {
-    if (!isDialogOpen) return;
+    if (!open) return;
 
     const requestId = ++requestIdRef.current;
 
-    const qs = new URLSearchParams({
-      limit: String(pageSize),
-      page: String(page),
-    });
+    const fetchAnswers = async () => {
+      try {
+        const qs = new URLSearchParams({
+          limit: String(pageSize),
+          page: String(page),
+        });
 
-    void clientFetch<AnswerListResponse>(
-      `/api/questions/${questionId}/answers?${qs}`,
-    )
-      .then((result) => {
+        const result = await clientFetch<AnswerListResponse>(
+          `/api/questions/${questionId}/answers?${qs}`,
+        );
+
         if (requestId !== requestIdRef.current) return;
 
         if (!result.ok || !result.data) {
@@ -87,19 +95,25 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
           totalPages,
           totalCount,
         });
-      })
-      .catch(() => {
+      } catch {
         if (requestId !== requestIdRef.current) return;
+
         setFetchState({
           status: 'error',
           message: '네트워크 오류가 발생했습니다.',
         });
-      });
-  }, [isDialogOpen, page, pageSize, questionId, retryKey]);
+      }
+    };
+
+    void fetchAnswers();
+
+    return () => {
+      requestIdRef.current += 1;
+    };
+  }, [open, page, pageSize, questionId, retryKey]);
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (nextOpen) {
-      setOpenedPathname(pathname);
       setPage(1);
       setPageSize(getAnswerPageSize(window.innerHeight));
       setFetchState({ status: 'loading' });
@@ -118,11 +132,7 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   };
 
   const handleRetry = () => {
-    setFetchState((prev) =>
-      prev.status === 'loaded'
-        ? { ...prev, isRefetching: true }
-        : { status: 'loading' },
-    );
+    setFetchState({ status: 'loading' });
     setRetryKey((prev) => prev + 1);
   };
 
@@ -131,7 +141,7 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
     (fetchState.status === 'loaded' && fetchState.isRefetching);
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" className="font-normal text-sm">
           답변 목록
