@@ -167,6 +167,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
             aria-invalid={!!errors.experience}
             defaultValue={initialProfile.experience ?? undefined}
             onChange={() => clearError('experience')}
+            onWheel={(e) => e.currentTarget.blur()}
             min={0}
             max={MAX_EXPERIENCE}
             step={1}
