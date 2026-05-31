@@ -12,7 +12,12 @@ export function LogoutButton() {
 
   return (
     <IconTooltip label="로그아웃">
-      <Button variant="outline" size="icon" onClick={handleLogout}>
+      <Button
+        variant="outline"
+        size="icon"
+        aria-label="로그아웃"
+        onClick={handleLogout}
+      >
         <LogOut />
       </Button>
     </IconTooltip>
