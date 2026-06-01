@@ -42,7 +42,7 @@ export default async function FeedbackPage({
         <Separator />
         <FeedbackSection feedback={feedback} />
       </CardContent>
-      <CardFooter className="flex gap-3 justify-end">
+      <CardFooter className="flex gap-3 justify-end flex-wrap">
         <RetryAnswerButton questionId={questionId} />
         <DeleteAnswerButton questionId={questionId} answerId={answerId} />
       </CardFooter>

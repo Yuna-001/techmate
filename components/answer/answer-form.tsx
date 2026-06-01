@@ -102,7 +102,7 @@ export function AnswerForm({ questionId }: { questionId: string }) {
           name="user-answer"
           dir="ltr"
           placeholder={`${MAX_ANSWER_LENGTH}자 이내로 답변을 작성해주세요.`}
-          className="resize-none sm:min-h-36"
+          className="resize-none h-36"
           value={userAnswer}
           onChange={(e) => setUserAnswer(e.target.value)}
           aria-invalid={isOverLimit}
