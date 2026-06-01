@@ -51,22 +51,29 @@ export default async function AccountPage() {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid grid-cols-[5rem_1fr] items-center gap-4">
-        <Label id="provider-label">로그인 방식</Label>
-        <div aria-labelledby="provider-label" className="text-base md:text-sm">
+      <div className="grid gap-1 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-4">
+        <Label id="provider-label" className="text-sm text-muted-foreground">
+          로그인 방식
+        </Label>
+        <div
+          aria-labelledby="provider-label"
+          className="text-base font-medium md:text-sm"
+        >
           {providerLabel}
         </div>
       </div>
-      <div className="grid grid-cols-[5rem_1fr] items-center gap-4">
-        <Label id="created-at-label">가입일</Label>
+      <div className="grid gap-1 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-4">
+        <Label id="created-at-label" className="text-sm text-muted-foreground">
+          가입일
+        </Label>
         <div
           aria-labelledby="created-at-label"
-          className="text-base md:text-sm"
+          className="text-base font-medium md:text-sm"
         >
           {joinedAt}
         </div>
       </div>
-      <div className="mt-5 flex items-center justify-between gap-4 border-t pt-5">
+      <div className="mt-5 flex flex-col items-start gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <p className="font-medium">회원 탈퇴</p>
           <p className="text-sm text-muted-foreground break-keep">
