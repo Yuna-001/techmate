@@ -16,7 +16,7 @@ export function QuestionListSkeleton() {
       </div>
 
       <div className="flex justify-center">
-        <Skeleton className="h-9 w-64" />
+        <Skeleton className="h-9 w-30 sm:w-64" />
       </div>
     </div>
   );

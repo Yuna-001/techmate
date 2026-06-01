@@ -23,15 +23,13 @@ export default async function HomePage({
 
   return (
     <>
-      <div className="flex justify-center mt-10 mb-24">
+      <div className="flex justify-center mt-10 mb-10 sm:mb-24">
         <CreateQuestionButton hasProfile={hasProfile} />
       </div>
       <section className="flex flex-col gap-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <h2 className="text-lg font-semibold">질문 목록</h2>
-          <div className="flex justify-end">
-            <BookmarkedQuestionFilter />
-          </div>
+          <BookmarkedQuestionFilter />
         </div>
 
         <Suspense fallback={<QuestionListSkeleton />}>
