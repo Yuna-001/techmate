@@ -18,10 +18,18 @@ jobs:
     permissions:
       contents: read
       issues: write
+      pull-requests: write
 
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      AUTH_GITHUB_ID: ${{ secrets.AUTH_GITHUB_ID }}
+      AUTH_GITHUB_SECRET: ${{ secrets.AUTH_GITHUB_SECRET }}
+      AUTH_GOOGLE_ID: ${{ secrets.AUTH_GOOGLE_ID }}
+      AUTH_GOOGLE_SECRET: ${{ secrets.AUTH_GOOGLE_SECRET }}
 
     steps:
       - name: Checkout
@@ -56,29 +64,39 @@ jobs:
             const { owner, repo } = context.repo;
             const issue_number = context.issue.number;
 
-            const { data: comments } = await github.rest.issues.listComments({
-              owner,
-              repo,
-              issue_number,
-              per_page: 100,
-            });
-
-            const previousComment = comments.find((comment) =>
-              comment.user.type === 'Bot' && comment.body?.includes(marker),
-            );
-
-            if (previousComment) {
-              await github.rest.issues.updateComment({
-                owner,
-                repo,
-                comment_id: previousComment.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
+            try {
+              const { data: comments } = await github.rest.issues.listComments({
                 owner,
                 repo,
                 issue_number,
-                body,
+                per_page: 100,
               });
+
+              const previousComment = comments.find((comment) =>
+                comment.user.type === 'Bot' && comment.body?.includes(marker),
+              );
+
+              if (previousComment) {
+                await github.rest.issues.updateComment({
+                  owner,
+                  repo,
+                  comment_id: previousComment.id,
+                  body,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner,
+                  repo,
+                  issue_number,
+                  body,
+                });
+              }
+            } catch (error) {
+              if (error.status === 403) {
+                core.warning(`Could not comment preview URL on PR: ${error.message}`);
+                core.info(`Preview URL: ${{ steps.deploy.outputs.url }}`);
+                return;
+              }
+
+              throw error;
             }
