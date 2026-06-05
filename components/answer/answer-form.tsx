@@ -9,9 +9,16 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+const CREATING_STATUS_MESSAGES = [
+  '답변의 핵심 키워드를 찾는 중...',
+  '논리 흐름을 살펴보는 중...',
+  '보완 포인트를 정리하는 중...',
+] as const;
+
 export function AnswerForm({ questionId }: { questionId: string }) {
   const [userAnswer, setUserAnswer] = useState<string>('');
   const [isCreating, setIsCreating] = useState<boolean>(false);
+  const [statusIndex, setStatusIndex] = useState<number>(0);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -37,6 +44,7 @@ export function AnswerForm({ questionId }: { questionId: string }) {
       return;
     }
 
+    setStatusIndex(0);
     setIsCreating(true);
     let navigated = false;
 
@@ -82,6 +90,21 @@ export function AnswerForm({ questionId }: { questionId: string }) {
     if (domValue) setUserAnswer(domValue);
   }, []);
 
+  useEffect(() => {
+    if (!isCreating) {
+      setStatusIndex(0);
+      return;
+    }
+
+    const intervalId = window.setInterval(() => {
+      setStatusIndex((currentIndex) =>
+        Math.min(currentIndex + 1, CREATING_STATUS_MESSAGES.length - 1),
+      );
+    }, 1500);
+
+    return () => window.clearInterval(intervalId);
+  }, [isCreating]);
+
   return (
     <form noValidate className="flex flex-col gap-3" onSubmit={handleSubmit}>
       <Field>
@@ -109,14 +132,21 @@ export function AnswerForm({ questionId }: { questionId: string }) {
           ref={textareaRef}
         />
       </Field>
-      <LoadingButton
-        isLoading={isCreating}
-        disabled={isDisabled}
-        loadingText="피드백 생성 중..."
-        className="py-5 w-full"
-      >
-        피드백 받기
-      </LoadingButton>
+      <div className="flex flex-col gap-2">
+        <LoadingButton
+          isLoading={isCreating}
+          disabled={isDisabled}
+          loadingText="피드백 생성 중..."
+          className="py-5 w-full"
+        >
+          AI 피드백 받기
+        </LoadingButton>
+        {isCreating && (
+          <p aria-live="polite" className="text-muted-foreground text-xs">
+            {CREATING_STATUS_MESSAGES[statusIndex]}
+          </p>
+        )}
+      </div>
     </form>
   );
 }
