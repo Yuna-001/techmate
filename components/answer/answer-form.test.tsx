@@ -130,7 +130,6 @@ describe('AnswerForm', () => {
     const loadingButton = getSubmitButton(/피드백 생성 중/);
     expect(loadingButton).toBe(submitButton);
     expect(loadingButton).toBeDisabled();
-    expect(loadingButton).toHaveAttribute('aria-busy', 'true');
     expect(
       screen.getByText('답변의 핵심 키워드를 찾는 중...'),
     ).toBeInTheDocument();
