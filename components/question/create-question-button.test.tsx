@@ -109,7 +109,7 @@ describe('CreateQuestionButton', () => {
     });
   });
 
-  test('네트워크 오류 발생 시 에러 토스트를 표시한다', async () => {
+  test('네트워크 오류 발생 시 에러 토스트를 표시하고 버튼을 다시 활성화한다', async () => {
     mockClientFetch.mockRejectedValueOnce(new Error());
 
     const user = userEvent.setup();
@@ -121,6 +121,12 @@ describe('CreateQuestionButton', () => {
         name: /기술 질문 생성하기/,
       }),
     );
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: /기술 질문 생성하기/ }),
+      ).toBeEnabled();
+    });
 
     expect(toast.error).toHaveBeenCalledWith('네트워크 오류가 발생했습니다.', {
       description: '인터넷 연결을 확인한 후 다시 시도해주세요.',
@@ -159,7 +165,7 @@ describe('CreateQuestionButton', () => {
     });
   });
 
-  test('질문 생성 요청 실패 시 로딩 상태가 해제된다', async () => {
+  test('질문 생성 요청 실패 시 에러 토스트를 표시하고 로딩 상태가 해제된다', async () => {
     const deferred = createDeferred<
       FetchSuccessResult<{ questionId: string }> | FetchErrorResult
     >();
@@ -190,5 +196,8 @@ describe('CreateQuestionButton', () => {
       screen.queryByText('기술 스택을 훑어보는 중...'),
     ).not.toBeInTheDocument();
     expect(mockPush).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledWith('기술 질문 생성에 실패했습니다.', {
+      description: '잠시 후 다시 시도해주세요.',
+    });
   });
 });
