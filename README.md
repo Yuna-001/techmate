@@ -63,7 +63,7 @@ AI 기반 기술 면접 연습 서비스
 ### 설치
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/Yuna-001/quervu.git
 cd quervu
 npm install
 ```
