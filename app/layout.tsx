@@ -18,7 +18,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'Quervu',
+  title: 'TechMate',
   description: 'AI 기술 면접 코칭 사이트',
 };
 
