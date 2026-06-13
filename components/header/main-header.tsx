@@ -10,14 +10,14 @@ export function MainHeader() {
         className="inline-flex min-w-0 shrink-0 items-center gap-2"
       >
         <Image
-          src="/logos/quervu-logo.png"
+          src="/logos/techmate-logo.png"
           alt=""
           width={40}
           height={40}
           priority
           className="h-8 sm:h-10 w-auto dark:brightness-0 dark:invert"
         />
-        <span className="font-lexend text-2xl sm:text-3xl">Quervu</span>
+        <span className="font-lexend text-2xl sm:text-3xl">TechMate</span>
       </Link>
       <HeaderActions />
     </header>
