@@ -16,10 +16,8 @@ export function FeedbackSection({ feedback }: { feedback: Feedback }) {
         AI 피드백
       </h2>
 
-      <div
-        className="flex items-baseline gap-1"
-        aria-label={`답변 점수: ${score}점 / 100점`}
-      >
+      <div className="flex items-baseline gap-1">
+        <span className="sr-only">답변 점수: {score}점 / 100점</span>
         <span
           className={`text-5xl font-bold ${getScoreColor(score)}`}
           aria-hidden="true"
