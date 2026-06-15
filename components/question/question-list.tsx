@@ -33,10 +33,12 @@ export async function QuestionList({
 
   if (!result.ok || !result.data) {
     return (
-      <RetryButton
-        title="질문 목록을 가져오는 데 실패했습니다."
-        description="잠시 후 다시 시도해주세요."
-      />
+      <div className="mt-20">
+        <RetryButton
+          title="질문 목록을 가져오는 데 실패했습니다."
+          description="잠시 후 다시 시도해주세요."
+        />
+      </div>
     );
   }
 
