@@ -109,7 +109,7 @@ export function AnswerForm({ questionId }: { questionId: string }) {
     <form noValidate className="flex flex-col gap-3" onSubmit={handleSubmit}>
       <Field>
         <div className="flex justify-between px-1 items-center">
-          <FieldLabel htmlFor="user-answer">사용자 답변</FieldLabel>
+          <FieldLabel htmlFor="user-answer">답변 작성</FieldLabel>
           <FieldDescription
             className="text-xs text-slate-600"
             aria-live="polite"
@@ -141,11 +141,11 @@ export function AnswerForm({ questionId }: { questionId: string }) {
         >
           AI 피드백 받기
         </LoadingButton>
-        {isCreating && (
-          <p aria-live="polite" className="text-muted-foreground text-xs">
-            {CREATING_STATUS_MESSAGES[statusIndex]}
-          </p>
-        )}
+        <div className="min-h-4 text-center text-xs text-muted-foreground">
+          {isCreating && (
+            <p aria-live="polite">{CREATING_STATUS_MESSAGES[statusIndex]}</p>
+          )}
+        </div>
       </div>
     </form>
   );

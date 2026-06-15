@@ -59,10 +59,13 @@ export function DeleteAnswerButton({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          variant="outline"
-          className={cn('hover:text-destructive', className)}
+          variant="ghost"
+          className={cn(
+            'text-muted-foreground hover:text-destructive',
+            className,
+          )}
         >
-          답변 삭제하기
+          답변 삭제
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

@@ -45,7 +45,7 @@ const renderAnswerForm = () => {
   return { user };
 };
 
-const getTextarea = () => screen.getByRole('textbox', { name: '사용자 답변' });
+const getTextarea = () => screen.getByRole('textbox', { name: '답변 작성' });
 const getSubmitButton = (name: RegExp | string = 'AI 피드백 받기') =>
   screen.getByRole('button', { name });
 
@@ -86,7 +86,7 @@ describe('AnswerForm', () => {
 
     const { user } = renderAnswerForm();
 
-    await user.type(getTextarea(), '사용자 답변');
+    await user.type(getTextarea(), '답변 작성');
     await user.click(getSubmitButton());
 
     expect(mockClientFetch).toHaveBeenCalledWith(
@@ -94,7 +94,7 @@ describe('AnswerForm', () => {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ answer: '사용자 답변' }),
+        body: JSON.stringify({ answer: '답변 작성' }),
       },
     );
   });
@@ -105,7 +105,7 @@ describe('AnswerForm', () => {
     const { user } = renderAnswerForm();
     const href = `/questions/${QUESTION_ID}/answers/${ANSWER_ID}`;
 
-    await user.type(getTextarea(), '사용자 답변');
+    await user.type(getTextarea(), '답변 작성');
     await user.click(getSubmitButton());
 
     expect(mockPrefetch).toHaveBeenCalledWith(href);
@@ -120,7 +120,7 @@ describe('AnswerForm', () => {
 
     const { user } = renderAnswerForm();
 
-    await user.type(getTextarea(), '사용자 답변');
+    await user.type(getTextarea(), '답변 작성');
 
     const submitButton = getSubmitButton();
     await user.click(submitButton);
@@ -153,7 +153,7 @@ describe('AnswerForm', () => {
 
     const { user } = renderAnswerForm();
 
-    await user.type(getTextarea(), '사용자 답변');
+    await user.type(getTextarea(), '답변 작성');
 
     const submitButton = getSubmitButton();
     await user.click(submitButton);
@@ -177,7 +177,7 @@ describe('AnswerForm', () => {
 
     const { user } = renderAnswerForm();
 
-    await user.type(getTextarea(), '사용자 답변');
+    await user.type(getTextarea(), '답변 작성');
     await user.click(getSubmitButton());
 
     await waitFor(() => {

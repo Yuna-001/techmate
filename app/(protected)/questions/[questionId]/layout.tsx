@@ -23,7 +23,7 @@ export default async function QuestionLayout({
   );
 
   if (!result.ok) {
-    if (result.status === 404) notFound();
+    if (result.status === 404 || result.status === 400) notFound();
 
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-300px)]">

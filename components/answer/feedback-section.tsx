@@ -4,7 +4,7 @@ import type { Feedback } from '@/models/answer';
 const getScoreColor = (score: number) => {
   if (score >= 80) return 'text-green-600 dark:text-green-400';
   if (score >= 60) return 'text-yellow-600 dark:text-yellow-400';
-  return 'text-red-500 dark:text-red-400';
+  return 'text-red-600 dark:text-red-400';
 };
 
 export function FeedbackSection({ feedback }: { feedback: Feedback }) {
@@ -17,17 +17,19 @@ export function FeedbackSection({ feedback }: { feedback: Feedback }) {
       </h2>
 
       <div className="flex items-baseline gap-1">
+        <span className="sr-only">답변 점수: {score}점 / 100점</span>
         <span
-          className={`font-inter text-5xl font-bold ${getScoreColor(score)}`}
+          className={`text-5xl font-bold ${getScoreColor(score)}`}
+          aria-hidden="true"
         >
           {score}
         </span>
-        <span className="text-sm text-muted-foreground">/ 100점</span>
+        <span className="text-sm text-muted-foreground" aria-hidden="true">
+          / 100점
+        </span>
       </div>
 
-      <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-        {summary}
-      </p>
+      <p className="text-sm leading-relaxed text-foreground">{summary}</p>
 
       <FeedbackPointGroup
         title="잘한 점"
@@ -75,9 +77,11 @@ function FeedbackPointGroup({
         {items.map((item, i) => (
           <li
             key={i}
-            className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300"
+            className="flex items-start gap-2 text-sm text-foreground"
           >
-            <span className={markerClassName}>{marker}</span>
+            <span className={markerClassName} aria-hidden="true">
+              {marker}
+            </span>
             {item}
           </li>
         ))}
