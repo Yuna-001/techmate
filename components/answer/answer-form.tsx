@@ -109,7 +109,7 @@ export function AnswerForm({ questionId }: { questionId: string }) {
     <form noValidate className="flex flex-col gap-3" onSubmit={handleSubmit}>
       <Field>
         <div className="flex justify-between px-1 items-center">
-          <FieldLabel htmlFor="user-answer">사용자 답변</FieldLabel>
+          <FieldLabel htmlFor="user-answer">답변 작성</FieldLabel>
           <FieldDescription
             className="text-xs text-slate-600"
             aria-live="polite"
