@@ -31,7 +31,7 @@ export default function LoginPage() {
       </header>
 
       <div className="flex flex-1 items-center justify-center px-3 py-8 sm:p-8">
-        <Card className="w-full max-w-sm py-10 gap-10 ">
+        <Card className="w-full max-w-sm -translate-y-4 gap-10 py-10 sm:-translate-y-8">
           <CardHeader className="text-center flex flex-col gap-5 items-center">
             <CardTitle className="text-2xl font-bold">로그인</CardTitle>
             <CardDescription className="break-keep">
