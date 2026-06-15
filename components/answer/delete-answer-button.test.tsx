@@ -38,7 +38,7 @@ describe('DeleteAnswerButton', () => {
   const openDialog = async (user: ReturnType<typeof userEvent.setup>) => {
     await user.click(
       screen.getByRole('button', {
-        name: '답변 삭제하기',
+        name: '답변 삭제',
       }),
     );
 
