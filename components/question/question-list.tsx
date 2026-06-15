@@ -50,7 +50,9 @@ export async function QuestionList({
 
       {items.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
-          아직 생성된 질문이 없습니다.
+          {bookmarkFilter
+            ? '아직 북마크한 질문이 없습니다.'
+            : '아직 생성된 질문이 없습니다.'}
         </p>
       ) : (
         <ul className="flex flex-col gap-6">
