@@ -38,7 +38,7 @@ export default function LoginPage() {
               TechMate와 함께 기술 면접 준비를 시작하세요.
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4 max-[250px]:flex-row max-[250px]:justify-around max-[250px]:mx-2">
+          <CardContent className="flex flex-col gap-4">
             <GoogleLoginButton />
             <GitHubLoginButton />
           </CardContent>
