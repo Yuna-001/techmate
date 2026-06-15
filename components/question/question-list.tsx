@@ -33,10 +33,12 @@ export async function QuestionList({
 
   if (!result.ok || !result.data) {
     return (
-      <RetryButton
-        title="질문 목록을 가져오는 데 실패했습니다."
-        description="잠시 후 다시 시도해주세요."
-      />
+      <div className="mt-20">
+        <RetryButton
+          title="질문 목록을 가져오는 데 실패했습니다."
+          description="잠시 후 다시 시도해주세요."
+        />
+      </div>
     );
   }
 
@@ -50,7 +52,9 @@ export async function QuestionList({
 
       {items.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
-          아직 생성된 질문이 없습니다.
+          {bookmarkFilter
+            ? '아직 북마크한 질문이 없습니다.'
+            : '아직 생성된 질문이 없습니다.'}
         </p>
       ) : (
         <ul className="flex flex-col gap-6">

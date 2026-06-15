@@ -23,7 +23,7 @@ export default async function HomePage({
 
   return (
     <>
-      <div className="flex justify-center mt-10 mb-10 sm:mb-24">
+      <div className="flex justify-center mt-10 mb-14 sm:mb-24">
         <CreateQuestionButton hasProfile={hasProfile} />
       </div>
       <section className="flex flex-col gap-6">

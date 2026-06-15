@@ -50,6 +50,42 @@ fix: 정적 이미지 요청 프록시 제외
 - 확장자가 있는 정적 파일 요청이 인증 프록시를 타지 않도록 matcher 수정
 ```
 
+### 브랜치 전략
+
+이 프로젝트는 Git Flow를 단순화해 `release/*` 브랜치 없이 사용한다.
+
+- `main`: 실제 배포 가능한 안정 브랜치
+- `develop`: 다음 배포에 포함될 변경 사항을 통합하는 브랜치
+- `feature/*`: 새 기능 개발 및 일반 수정 작업 브랜치
+- `hotfix/*`: 운영 브랜치 기준 긴급 수정 브랜치
+
+브랜치 운영 규칙은 아래를 따른다.
+
+- 새 기능과 일반 수정은 `develop`에서 `feature/*` 브랜치를 만든다.
+- `feature/*` 작업 완료 후 `develop`으로 PR을 생성한다.
+- 긴급 운영 수정은 `main`에서 `hotfix/*` 브랜치를 만든다.
+- `hotfix/*` 작업 완료 후 `main`에 먼저 반영하고, 같은 변경 사항을 `develop`에도 반영한다.
+- 배포는 검증된 `develop` 변경 사항을 `main`으로 병합하는 방식으로 진행한다.
+- `release/*` 브랜치는 사용하지 않는다.
+
+브랜치명은 아래 형식을 따른다.
+
+```text
+feature/short-description
+hotfix/short-description
+```
+
+예시:
+
+```text
+feature/question-create
+feature/login-redirect-fix
+hotfix/auth-session-error
+```
+
+- `short-description`은 영어 kebab-case로 작성한다.
+- 하나의 브랜치는 하나의 작업 목적만 가진다.
+
 ### PR 작성 규칙
 
 PR 제목은 prefix 없이 변경 내용을 간결하게 작성한다.

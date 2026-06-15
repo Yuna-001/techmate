@@ -85,6 +85,25 @@ describe('QuestionList', () => {
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
 
+  test('북마크 필터 결과가 비어 있으면 북마크 빈 상태 문구를 렌더링한다', async () => {
+    mockServerFetch.mockResolvedValueOnce(
+      createQuestionListResponse({
+        items: [],
+        totalCount: 0,
+        totalPages: 0,
+      }),
+    );
+
+    render(await QuestionList({ page: 1, bookmarkFilter: true }));
+
+    expect(
+      screen.getByText('아직 북마크한 질문이 없습니다.'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('아직 생성된 질문이 없습니다.'),
+    ).not.toBeInTheDocument();
+  });
+
   test('items가 있으면 질문 목록을 렌더링한다', async () => {
     mockServerFetch.mockResolvedValueOnce(createQuestionListResponse());
 

@@ -1,10 +1,10 @@
-# Quervu
+# TechMate
 
 AI 기반 기술 면접 연습 서비스
 
 사용자 프로필(직군·연차·기술스택)을 바탕으로 AI가 면접 질문을 생성하고, 작성한 답변에 대해 점수·강점·개선점 피드백을 제공합니다.
 
-**[→ 서비스 바로가기](https://quervu.vercel.app)**
+**[→ 서비스 바로가기](https://techmate-dev.vercel.app)**
 
 ---
 
@@ -63,8 +63,8 @@ AI 기반 기술 면접 연습 서비스
 ### 설치
 
 ```bash
-git clone https://github.com/Yuna-001/quervu.git
-cd quervu
+git clone https://github.com/Yuna-001/techmate.git
+cd techmate
 npm install
 ```
 
@@ -99,7 +99,7 @@ npm run dev
 ## 프로젝트 구조
 
 ```
-quervu/
+techmate/
 ├── app/
 │   ├── (auth)/          # 로그인 페이지
 │   ├── (protected)/     # 인증 필요 페이지 (홈, 질문, 설정)
