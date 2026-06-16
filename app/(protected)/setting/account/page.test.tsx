@@ -14,6 +14,12 @@ jest.mock('@/components/account/delete-account-button', () => ({
   DeleteAccountButton: () => <button type="button">회원 탈퇴</button>,
 }));
 
+jest.mock('@/components/account/provider-link-button', () => ({
+  ProviderLinkButton: ({ provider }: { provider: string }) => (
+    <button type="button">{provider} 연동하기</button>
+  ),
+}));
+
 jest.mock('@/components/common/retry-button', () => ({
   RetryButton: ({
     title,
@@ -53,7 +59,9 @@ describe('AccountPage', () => {
     expect(screen.getByText('Google')).toBeInTheDocument();
     expect(screen.getByText('GitHub')).toBeInTheDocument();
     expect(screen.getByText('연동됨')).toBeInTheDocument();
-    expect(screen.getByText('연동 필요')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'github 연동하기' }),
+    ).toBeInTheDocument();
     expect(screen.getByText('2026년 6월 16일')).toBeInTheDocument();
   });
 

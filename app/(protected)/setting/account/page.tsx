@@ -1,4 +1,5 @@
 import { DeleteAccountButton } from '@/components/account/delete-account-button';
+import { ProviderLinkButton } from '@/components/account/provider-link-button';
 import { RetryButton } from '@/components/common/retry-button';
 import { Label } from '@/components/ui/label';
 import { serverFetch } from '@/lib/fetch/server';
@@ -63,15 +64,13 @@ export default async function AccountPage() {
                 <span className="text-base font-medium md:text-sm">
                   {PROVIDER_LABEL[provider]}
                 </span>
-                <span
-                  className={
-                    isLinked
-                      ? 'text-sm font-medium text-primary'
-                      : 'text-sm text-muted-foreground'
-                  }
-                >
-                  {isLinked ? '연동됨' : '연동 필요'}
-                </span>
+                {isLinked ? (
+                  <span className="text-sm font-medium text-primary">
+                    연동됨
+                  </span>
+                ) : (
+                  <ProviderLinkButton provider={provider} />
+                )}
               </div>
             );
           })}
