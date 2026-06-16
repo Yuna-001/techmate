@@ -1,6 +1,6 @@
 export type AccountProvider = 'github' | 'google';
 
 export type AccountResponse = {
-  provider: AccountProvider | null;
+  providers: AccountProvider[];
   createdAt: string | null;
 };

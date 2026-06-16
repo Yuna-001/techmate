@@ -9,13 +9,7 @@ const PROVIDER_LABEL: Record<AccountProvider, string> = {
   google: 'Google',
 };
 
-const getProviderLabel = (provider: AccountProvider | null) => {
-  if (!provider) {
-    return '알 수 없음';
-  }
-
-  return PROVIDER_LABEL[provider];
-};
+const PROVIDERS = Object.keys(PROVIDER_LABEL) as AccountProvider[];
 
 const getJoinedAtLabel = (createdAt: string | null) => {
   if (!createdAt) {
@@ -45,24 +39,45 @@ export default async function AccountPage() {
     );
   }
 
-  const { provider, createdAt } = result.data;
-  const providerLabel = getProviderLabel(provider);
+  const { createdAt, providers } = result.data;
   const joinedAt = getJoinedAtLabel(createdAt);
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="grid gap-1 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-4">
-        <Label id="provider-label" className="text-sm text-muted-foreground">
-          로그인 방식
-        </Label>
-        <div
-          aria-labelledby="provider-label"
-          className="text-base font-medium md:text-sm"
+      <div className="grid gap-2 sm:grid-cols-[8rem_1fr] sm:gap-4">
+        <Label
+          id="providers-label"
+          className="pt-1 text-sm text-muted-foreground"
         >
-          {providerLabel}
+          연동된 로그인 방식
+        </Label>
+        <div aria-labelledby="providers-label" className="flex flex-col gap-2">
+          {PROVIDERS.map((provider) => {
+            const isLinked = providers.includes(provider);
+
+            return (
+              <div
+                key={provider}
+                className="flex items-center justify-between gap-4 rounded-md border px-3 py-2"
+              >
+                <span className="text-base font-medium md:text-sm">
+                  {PROVIDER_LABEL[provider]}
+                </span>
+                <span
+                  className={
+                    isLinked
+                      ? 'text-sm font-medium text-primary'
+                      : 'text-sm text-muted-foreground'
+                  }
+                >
+                  {isLinked ? '연동됨' : '연동 필요'}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
-      <div className="grid gap-1 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-4">
+      <div className="grid gap-1 sm:grid-cols-[8rem_1fr] sm:items-center sm:gap-4">
         <Label id="created-at-label" className="text-sm text-muted-foreground">
           가입일
         </Label>
