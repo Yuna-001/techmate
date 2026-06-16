@@ -57,7 +57,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 role="alert"
                 className="my-1 break-keep text-center rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
               >
-                이미 다른 로그인 방식으로 가입되었거나 연결된 계정입니다.
+                이 계정은 이미 다른 TechMate 계정에서 사용 중입니다. 계정을
+                전환한 뒤 다시 시도해 주세요.
               </div>
             ) : null}
           </CardContent>

@@ -16,7 +16,12 @@ export function ProviderLinkButton({ provider }: ProviderLinkButtonProps) {
   };
 
   return (
-    <Button variant="outline" size="sm" onClick={handleLinkProvider}>
+    <Button
+      variant="link"
+      size="sm"
+      onClick={handleLinkProvider}
+      className="h-auto p-0"
+    >
       연동하기
     </Button>
   );

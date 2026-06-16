@@ -6,11 +6,17 @@ import { serverFetch } from '@/lib/fetch/server';
 import type { AccountProvider, AccountResponse } from '@/types/account';
 
 const PROVIDER_LABEL: Record<AccountProvider, string> = {
-  github: 'GitHub',
   google: 'Google',
+  github: 'GitHub',
 };
 
 const PROVIDERS = Object.keys(PROVIDER_LABEL) as AccountProvider[];
+
+type AccountPageProps = {
+  searchParams?: Promise<{
+    linked?: string | string[];
+  }>;
+};
 
 const getJoinedAtLabel = (createdAt: string | null) => {
   if (!createdAt) {
@@ -24,7 +30,19 @@ const getJoinedAtLabel = (createdAt: string | null) => {
   });
 };
 
-export default async function AccountPage() {
+const getLinkedProvider = (
+  linked: string | string[] | undefined,
+): AccountProvider | null => {
+  if (typeof linked !== 'string') {
+    return null;
+  }
+
+  return linked === 'google' || linked === 'github' ? linked : null;
+};
+
+export default async function AccountPage({ searchParams }: AccountPageProps) {
+  const params = await searchParams;
+  const linkedProvider = getLinkedProvider(params?.linked);
   const result = await serverFetch<AccountResponse>('/api/me', {
     cache: 'no-store',
   });
@@ -42,9 +60,25 @@ export default async function AccountPage() {
 
   const { createdAt, providers } = result.data;
   const joinedAt = getJoinedAtLabel(createdAt);
+  const hasLinkedProvider =
+    linkedProvider !== null && providers.includes(linkedProvider);
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-8">
+      {linkedProvider ? (
+        <div
+          role="alert"
+          className={
+            hasLinkedProvider
+              ? 'break-keep rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary'
+              : 'break-keep rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive'
+          }
+        >
+          {hasLinkedProvider
+            ? `${PROVIDER_LABEL[linkedProvider]} 계정 연동이 완료되었습니다.`
+            : `연동에 실패했습니다. ${PROVIDER_LABEL[linkedProvider]} 계정을 확인한 뒤 다시 시도해 주세요.`}
+        </div>
+      ) : null}
       <div className="grid gap-2 sm:grid-cols-[8rem_1fr] sm:gap-4">
         <Label
           id="providers-label"
@@ -53,13 +87,22 @@ export default async function AccountPage() {
           연동된 로그인 방식
         </Label>
         <div aria-labelledby="providers-label" className="flex flex-col gap-2">
+          {providers.includes('github') ? null : (
+            <div className="order-last space-y-1 break-keep rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+              <p>현재 브라우저에 로그인된 GitHub 계정이 연동됩니다.</p>
+              <p>
+                다른 GitHub 계정을 연동하려면 GitHub에서 먼저 계정을 전환해
+                주세요.
+              </p>
+            </div>
+          )}
           {PROVIDERS.map((provider) => {
             const isLinked = providers.includes(provider);
 
             return (
               <div
                 key={provider}
-                className="flex items-center justify-between gap-4 rounded-md border px-3 py-2"
+                className="flex min-h-12 items-center justify-between gap-4 rounded-md border px-3 py-2"
               >
                 <span className="text-base font-medium md:text-sm">
                   {PROVIDER_LABEL[provider]}
