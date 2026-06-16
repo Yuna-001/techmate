@@ -10,7 +10,18 @@ import {
 } from '@/components/ui/card';
 import Image from 'next/image';
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams?: Promise<{
+    error?: string | string[];
+  }>;
+};
+
+const ACCOUNT_NOT_LINKED_ERROR = 'OAuthAccountNotLinked';
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams;
+  const isAccountNotLinked = params?.error === ACCOUNT_NOT_LINKED_ERROR;
+
   return (
     <div className="flex min-h-screen flex-col bg-linear-to-br from-background via-sky-100 to-background dark:via-sky-950">
       <header className="flex items-center justify-between gap-4 px-4 py-2 sm:px-6">
@@ -41,6 +52,14 @@ export default function LoginPage() {
           <CardContent className="flex flex-col gap-4">
             <GoogleLoginButton />
             <GitHubLoginButton />
+            {isAccountNotLinked ? (
+              <div
+                role="alert"
+                className="my-1 break-keep text-center rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              >
+                이미 다른 로그인 방식으로 가입되었거나 연결된 계정입니다.
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </div>
