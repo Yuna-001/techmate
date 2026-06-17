@@ -108,7 +108,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
                   {PROVIDER_LABEL[provider]}
                 </span>
                 {isLinked ? (
-                  <span className="text-sm font-medium text-primary">
+                  <span className="text-sm font-normal text-muted-foreground">
                     연동됨
                   </span>
                 ) : (
