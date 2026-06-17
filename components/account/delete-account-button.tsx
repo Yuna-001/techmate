@@ -42,7 +42,7 @@ export function DeleteAccountButton() {
       <AlertDialogTrigger asChild>
         <Button
           variant="outline"
-          className="hover:not-dark:border-destructive hover:not-dark:text-destructive hover:not-dark:bg-background hover:dark:bg-destructive hover:dark:border-destructive duration-150"
+          className="hover:not-dark:border-destructive hover:not-dark:text-destructive hover:not-dark:bg-background hover:dark:bg-destructive hover:dark:border-destructive"
         >
           회원 탈퇴
         </Button>

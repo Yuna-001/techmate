@@ -20,7 +20,7 @@ export function ProviderLinkButton({ provider }: ProviderLinkButtonProps) {
       variant="link"
       size="sm"
       onClick={handleLinkProvider}
-      className="h-auto p-0"
+      className="h-auto px-0 py-2"
     >
       연동하기
     </Button>

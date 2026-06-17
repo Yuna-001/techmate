@@ -87,15 +87,6 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           연동된 로그인 방식
         </Label>
         <div aria-labelledby="providers-label" className="flex flex-col gap-2">
-          {providers.includes('github') ? null : (
-            <div className="order-last space-y-1 break-keep rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-              <p>현재 브라우저에 로그인된 GitHub 계정이 연동됩니다.</p>
-              <p>
-                다른 GitHub 계정을 연동하려면 GitHub에서 먼저 계정을 전환해
-                주세요.
-              </p>
-            </div>
-          )}
           {PROVIDERS.map((provider) => {
             const isLinked = providers.includes(provider);
 
@@ -117,6 +108,15 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
               </div>
             );
           })}
+          {providers.includes('github') ? null : (
+            <div className="space-y-1 break-keep rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+              <p>현재 브라우저에 로그인된 GitHub 계정이 연동됩니다.</p>
+              <p>
+                다른 GitHub 계정을 연동하려면 GitHub에서 먼저 계정을 전환해
+                주세요.
+              </p>
+            </div>
+          )}
         </div>
       </div>
       <div className="grid gap-1 sm:grid-cols-[8rem_1fr] sm:items-center sm:gap-4">
@@ -130,7 +130,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
           {joinedAt}
         </div>
       </div>
-      <div className="mt-5 flex flex-col items-start gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mt-8 flex flex-col items-start gap-4 border-t pt-8 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <p className="font-medium">회원 탈퇴</p>
           <p className="text-sm text-muted-foreground break-keep">
