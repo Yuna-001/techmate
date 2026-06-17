@@ -1,6 +1,5 @@
-import { PROVIDER_LABEL, PROVIDERS } from '@/lib/constants/account-provider';
 import { ProviderLinkButton } from '@/components/account/provider-link-button';
-import { Label } from '@/components/ui/label';
+import { PROVIDER_LABEL, PROVIDERS } from '@/lib/constants/account-provider';
 import type { AccountProvider } from '@/types/account';
 
 type LinkedProvidersSectionProps = {
@@ -12,12 +11,9 @@ export function LinkedProvidersSection({
 }: LinkedProvidersSectionProps) {
   return (
     <div className="grid gap-2 sm:grid-cols-[8rem_1fr] sm:gap-4">
-      <Label
-        id="providers-label"
-        className="pt-1 text-sm text-muted-foreground"
-      >
+      <p id="providers-label" className="pt-1 text-sm text-muted-foreground">
         연동된 로그인 방식
-      </Label>
+      </p>
       <div aria-labelledby="providers-label" className="flex flex-col gap-2">
         {PROVIDERS.map((provider) => {
           const isLinked = providers.includes(provider);
@@ -27,11 +23,11 @@ export function LinkedProvidersSection({
               key={provider}
               className="flex min-h-12 items-center justify-between gap-4 rounded-md border px-3 py-2"
             >
-              <span className="text-base font-medium md:text-sm">
+              <span className="font-semibold text-sm">
                 {PROVIDER_LABEL[provider]}
               </span>
               {isLinked ? (
-                <span className="text-sm font-normal text-muted-foreground">
+                <span className="py-2 text-sm font-normal text-muted-foreground">
                   연동됨
                 </span>
               ) : (

@@ -3,6 +3,7 @@ import { AccountLinkResultAlert } from '@/components/account/account-link-result
 import { DeleteAccountSection } from '@/components/account/delete-account-section';
 import { LinkedProvidersSection } from '@/components/account/linked-providers-section';
 import { RetryButton } from '@/components/common/retry-button';
+import { Separator } from '@/components/ui/separator';
 import { serverFetch } from '@/lib/fetch/server';
 import type { AccountProvider, AccountResponse } from '@/types/account';
 
@@ -63,6 +64,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
       />
       <LinkedProvidersSection providers={providers} />
       <AccountJoinedAtSection joinedAt={joinedAt} />
+      <Separator className="my-4" />
       <DeleteAccountSection />
     </div>
   );
