@@ -6,7 +6,7 @@ import { QuestionPreviewCard } from '@/components/question/question-preview-card
 import { serverFetch } from '@/lib/fetch/server';
 import type { QuestionListResponse } from '@/types/question';
 
-const QUESTIONS_PAGE_SIZE = 2;
+const QUESTIONS_PAGE_SIZE = 5;
 
 export async function QuestionList({
   page,
