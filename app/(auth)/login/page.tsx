@@ -57,8 +57,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 role="alert"
                 className="my-1 break-keep text-center rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
               >
-                이미 같은 이메일로 가입된 계정이 있습니다. 처음 사용한 로그인
-                방식으로 로그인해 주세요.
+                <p>이미 같은 이메일로 가입된 계정이 있습니다. </p>
+                <p>처음 사용한 로그인 방식으로 로그인해 주세요.</p>
               </div>
             ) : null}
           </CardContent>
