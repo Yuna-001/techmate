@@ -67,13 +67,6 @@ describe('AccountPage', () => {
     expect(
       screen.getByRole('button', { name: 'github 연동하기' }),
     ).toBeInTheDocument();
-    expect(
-      screen
-        .getByText('GitHub')
-        .compareDocumentPosition(
-          screen.getByText('GitHub 계정이 연동됩니다.', { exact: false }),
-        ),
-    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
     expect(screen.getByText('2026년 6월 16일')).toBeInTheDocument();
   });
 

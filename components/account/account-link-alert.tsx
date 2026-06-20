@@ -1,5 +1,5 @@
-import { cn } from '@/lib/utils';
 import { PROVIDER_LABEL } from '@/lib/constants/account-provider';
+import { cn } from '@/lib/utils';
 import type { AccountLinkError, AccountProvider } from '@/types/account';
 
 const ERROR_MESSAGE: Record<AccountLinkError, string> = {
@@ -33,7 +33,18 @@ export function AccountLinkAlert({
   }
 
   if (!linkedProvider) {
-    return null;
+    if (providers.includes('github')) {
+      return null;
+    }
+
+    return (
+      <div className="space-y-1 break-keep rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
+        <p>현재 브라우저에 로그인된 GitHub 계정이 연동됩니다.</p>
+        <p>
+          다른 GitHub 계정을 연동하려면 GitHub에서 먼저 계정을 전환해 주세요.
+        </p>
+      </div>
+    );
   }
 
   const hasLinkedProvider = providers.includes(linkedProvider);

@@ -36,15 +36,6 @@ export function LinkedProvidersSection({
             </div>
           );
         })}
-        {!providers.includes('github') && (
-          <div className="space-y-1 break-keep rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-            <p>현재 브라우저에 로그인된 GitHub 계정이 연동됩니다.</p>
-            <p>
-              다른 GitHub 계정을 연동하려면 GitHub에서 먼저 계정을 전환해
-              주세요.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
