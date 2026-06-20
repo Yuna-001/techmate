@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { ProviderLinkButton } from './provider-link-button';
 
@@ -9,12 +10,21 @@ jest.mock('@/app/(protected)/setting/account/actions', () => ({
   prepareLinkProvider: (...args: unknown[]) => prepareLinkProvider(...args),
 }));
 
+jest.mock('next/navigation', () => ({
+  useRouter: jest.fn(),
+}));
+
 jest.mock('next-auth/react', () => ({
   signIn: jest.fn(),
 }));
 
 describe('ProviderLinkButton', () => {
+  const push = jest.fn();
+
   beforeEach(() => {
+    jest.mocked(useRouter).mockReturnValue({
+      push,
+    } as unknown as ReturnType<typeof useRouter>);
     prepareLinkProvider.mockResolvedValue({ ok: true });
   });
 
@@ -33,13 +43,40 @@ describe('ProviderLinkButton', () => {
 
   test('Pending Link 생성 실패 시 OAuth 로그인을 시작하지 않는다', async () => {
     const user = userEvent.setup();
-    prepareLinkProvider.mockResolvedValue({ ok: false });
+    prepareLinkProvider.mockResolvedValue({ ok: false, error: 'Unknown' });
 
     render(<ProviderLinkButton provider="github" />);
 
     await user.click(screen.getByRole('button', { name: '연동하기' }));
 
     expect(signIn).not.toHaveBeenCalled();
+  });
+
+  test('세션이 없으면 로그인 페이지로 이동한다', async () => {
+    const user = userEvent.setup();
+    prepareLinkProvider.mockResolvedValue({
+      ok: false,
+      error: 'SessionRequired',
+    });
+
+    render(<ProviderLinkButton provider="github" />);
+
+    await user.click(screen.getByRole('button', { name: '연동하기' }));
+
+    expect(signIn).not.toHaveBeenCalled();
+    expect(push).toHaveBeenCalledWith('/login?error=SessionRequired');
+  });
+
+  test('서버 액션 호출이 실패하면 로그인 페이지로 이동한다', async () => {
+    const user = userEvent.setup();
+    prepareLinkProvider.mockRejectedValue(new Error('action error'));
+
+    render(<ProviderLinkButton provider="github" />);
+
+    await user.click(screen.getByRole('button', { name: '연동하기' }));
+
+    expect(signIn).not.toHaveBeenCalled();
+    expect(push).toHaveBeenCalledWith('/login?error=SessionRequired');
   });
 
   test('Pending Link 생성 중 버튼을 비활성화한다', async () => {

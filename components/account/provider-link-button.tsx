@@ -3,6 +3,7 @@
 import { prepareLinkProvider } from '@/app/(protected)/setting/account/actions';
 import { Button } from '@/components/ui/button';
 import type { AccountProvider } from '@/types/account';
+import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 
@@ -11,21 +12,31 @@ type ProviderLinkButtonProps = {
 };
 
 export function ProviderLinkButton({ provider }: ProviderLinkButtonProps) {
+  const router = useRouter();
   const [isPending, setIsPending] = useState(false);
 
   const handleLinkProvider = async () => {
     setIsPending(true);
 
-    const result = await prepareLinkProvider(provider);
+    try {
+      const result = await prepareLinkProvider(provider);
 
-    if (!result.ok) {
-      setIsPending(false);
-      return;
+      if (!result.ok) {
+        if (result.error === 'SessionRequired') {
+          router.push('/login?error=SessionRequired');
+          return;
+        }
+
+        setIsPending(false);
+        return;
+      }
+
+      await signIn(provider, {
+        callbackUrl: `/setting/account?linked=${provider}`,
+      });
+    } catch {
+      router.push('/login?error=SessionRequired');
     }
-
-    await signIn(provider, {
-      callbackUrl: `/setting/account?linked=${provider}`,
-    });
   };
 
   return (

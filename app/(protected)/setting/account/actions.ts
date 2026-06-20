@@ -6,7 +6,9 @@ import type { AccountProvider } from '@/types/account';
 import { ObjectId } from 'mongodb';
 import { cookies } from 'next/headers';
 
-type PrepareLinkProviderResult = { ok: true } | { ok: false };
+type PrepareLinkProviderResult =
+  | { ok: true }
+  | { ok: false; error: 'SessionRequired' | 'InvalidProvider' | 'Unknown' };
 
 type PendingLinkDoc = {
   token: string;
@@ -26,13 +28,19 @@ const isAccountProvider = (provider: string): provider is AccountProvider =>
 export const prepareLinkProvider = async (
   provider: string,
 ): Promise<PrepareLinkProviderResult> => {
+  if (!isAccountProvider(provider)) {
+    return { ok: false, error: 'InvalidProvider' };
+  }
+
+  let userId: string;
+
   try {
-    const { userId } = await requireUserId();
+    ({ userId } = await requireUserId());
+  } catch {
+    return { ok: false, error: 'SessionRequired' };
+  }
 
-    if (!isAccountProvider(provider)) {
-      return { ok: false };
-    }
-
+  try {
     const now = new Date();
     const token = crypto.randomUUID();
     const db = client.db();
@@ -57,6 +65,6 @@ export const prepareLinkProvider = async (
 
     return { ok: true };
   } catch {
-    return { ok: false };
+    return { ok: false, error: 'Unknown' };
   }
 };

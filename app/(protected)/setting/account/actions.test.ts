@@ -72,7 +72,8 @@ describe('prepareLinkProvider', () => {
   test('허용되지 않은 provider이면 Pending Link를 생성하지 않는다', async () => {
     const result = await prepareLinkProvider('twitter');
 
-    expect(result).toEqual({ ok: false });
+    expect(result).toEqual({ ok: false, error: 'InvalidProvider' });
+    expect(requireUserId).not.toHaveBeenCalled();
     expect(insertOne).not.toHaveBeenCalled();
     expect(setCookie).not.toHaveBeenCalled();
   });
@@ -82,8 +83,18 @@ describe('prepareLinkProvider', () => {
 
     const result = await prepareLinkProvider('github');
 
-    expect(result).toEqual({ ok: false });
+    expect(result).toEqual({ ok: false, error: 'SessionRequired' });
     expect(insertOne).not.toHaveBeenCalled();
+    expect(setCookie).not.toHaveBeenCalled();
+  });
+
+  test('Pending Link 생성 중 오류가 발생하면 Unknown을 반환한다', async () => {
+    insertOne.mockRejectedValue(new Error('db error'));
+
+    const result = await prepareLinkProvider('github');
+
+    expect(result).toEqual({ ok: false, error: 'Unknown' });
+    expect(insertOne).toHaveBeenCalled();
     expect(setCookie).not.toHaveBeenCalled();
   });
 });
