@@ -32,6 +32,7 @@ AI 기반 기술 면접 연습 서비스
 - **AI 답변 피드백** — 점수(0–100), 강점, 개선점, 누락 키워드 분석
 - **북마크** — 중요한 질문을 따로 모아볼 수 있는 북마크
 - **OAuth 로그인** — Google / GitHub 소셜 로그인
+- **소셜 계정 연동** — 하나의 계정에 Google / GitHub 계정을 추가 연동
 - **프로필 관리** — 직군·연차·기술스택 설정
 - **다크 모드** — 시스템 설정 연동
 
@@ -176,10 +177,20 @@ erDiagram
         string id_token
     }
 
+    PENDING_LINK {
+        ObjectId _id PK
+        string token
+        string provider
+        ObjectId userId FK
+        date createdAt
+        date expiresAt
+    }
+
     USER ||--o{ QUESTION : "작성"
     USER ||--o{ ANSWER : "작성"
     USER ||--o| PROFILE : "보유"
     USER ||--o{ ACCOUNT : "연결"
+    USER ||--o{ PENDING_LINK : "계정 연동 대기"
     QUESTION ||--o{ ANSWER : "포함"
     ANSWER ||--|| FEEDBACK : "포함 (embedded)"
 ```
