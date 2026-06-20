@@ -1,15 +1,35 @@
 import { PROVIDER_LABEL } from '@/lib/constants/account-provider';
-import type { AccountProvider } from '@/types/account';
+import type { AccountLinkError, AccountProvider } from '@/types/account';
+
+const ERROR_MESSAGE: Record<AccountLinkError, string> = {
+  AlreadyLinked: '이미 다른 사용자 계정에 연결된 소셜 계정입니다.',
+  AlreadyLinkedToCurrent: '이미 현재 계정에 연동된 소셜 계정입니다.',
+  LinkRequired: '계정 연동 요청을 확인할 수 없습니다. 다시 시도해 주세요.',
+  LinkExpired: '계정 연동 요청을 확인할 수 없습니다. 다시 시도해 주세요.',
+};
 
 type AccountLinkResultAlertProps = {
   linkedProvider: AccountProvider | null;
+  error: AccountLinkError | null;
   providers: AccountProvider[];
 };
 
 export function AccountLinkResultAlert({
   linkedProvider,
+  error,
   providers,
 }: AccountLinkResultAlertProps) {
+  if (error) {
+    return (
+      <div
+        role="alert"
+        className="break-keep rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+      >
+        {ERROR_MESSAGE[error]}
+      </div>
+    );
+  }
+
   if (!linkedProvider) {
     return null;
   }

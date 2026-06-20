@@ -5,11 +5,16 @@ import { LinkedProvidersSection } from '@/components/account/linked-providers-se
 import { RetryButton } from '@/components/common/retry-button';
 import { Separator } from '@/components/ui/separator';
 import { serverFetch } from '@/lib/fetch/server';
-import type { AccountProvider, AccountResponse } from '@/types/account';
+import type {
+  AccountLinkError,
+  AccountProvider,
+  AccountResponse,
+} from '@/types/account';
 
 type AccountPageProps = {
   searchParams?: Promise<{
     linked?: string | string[];
+    error?: string | string[];
   }>;
 };
 
@@ -35,9 +40,25 @@ const getLinkedProvider = (
   return linked === 'google' || linked === 'github' ? linked : null;
 };
 
+const getAccountLinkError = (
+  error: string | string[] | undefined,
+): AccountLinkError | null => {
+  if (typeof error !== 'string') {
+    return null;
+  }
+
+  return error === 'AlreadyLinked' ||
+    error === 'AlreadyLinkedToCurrent' ||
+    error === 'LinkRequired' ||
+    error === 'LinkExpired'
+    ? error
+    : null;
+};
+
 export default async function AccountPage({ searchParams }: AccountPageProps) {
   const params = await searchParams;
   const linkedProvider = getLinkedProvider(params?.linked);
+  const linkError = getAccountLinkError(params?.error);
   const result = await serverFetch<AccountResponse>('/api/me', {
     cache: 'no-store',
   });
@@ -60,6 +81,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
     <div className="flex flex-col gap-8">
       <AccountLinkResultAlert
         linkedProvider={linkedProvider}
+        error={linkError}
         providers={providers}
       />
       <LinkedProvidersSection providers={providers} />
