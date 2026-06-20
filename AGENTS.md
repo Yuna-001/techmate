@@ -8,6 +8,14 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## 프로젝트 작업 규칙
 
+## 기본 작업 규칙
+
+- 모든 문서는 한국어로 작성한다.
+- 코드 작업 요청을 받으면 바로 구현하지 않고 `local/WORK.md`에 개발 계획을 먼저 작성한다.
+- 사용자의 승인을 받은 후에만 구현을 시작한다.
+- 구현 시작 전 `local/WORK.md`를 읽고 계획대로 진행한다.
+- 작업 완료 후 해당 항목을 `local/WORK.md`에서 `local/HISTORY.md`로 이동한다.
+
 ### 커밋 컨벤션
 
 커밋 메시지를 작성할 때는 아래 타입을 사용한다.
