@@ -12,6 +12,7 @@
     "test:watchAll": "jest --watchAll",
     "test:changed": "jest --onlyChanged",
     "test:coverage": "jest --coverage",
+    "db:indexes": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\",\\\"moduleResolution\\\":\\\"node\\\"}\" scripts/ensure-oauth-indexes.ts",
     "prepare": "husky",
     "typecheck": "tsc --noEmit",
     "format:check": "prettier --check ."
