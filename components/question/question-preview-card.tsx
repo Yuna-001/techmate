@@ -42,7 +42,11 @@ export function QuestionPreviewCard({
             initialIsBookmarked={isBookmarked}
             size={20}
           />
-          <DeleteQuestionButton questionId={questionId} size={20} />
+          <DeleteQuestionButton
+            questionId={questionId}
+            afterDelete="refresh"
+            size={20}
+          />
         </CardAction>
       </CardContent>
     </Card>
