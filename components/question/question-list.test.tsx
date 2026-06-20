@@ -21,12 +21,15 @@ jest.mock('@/components/common/responsive-pagination', () => ({
   ResponsivePagination: ({
     page,
     totalPages,
+    makeHref,
   }: {
     page: number;
     totalPages: number;
+    makeHref: (page: number) => string;
   }) => (
     <nav aria-label="페이지네이션">
       {page} / {totalPages}
+      <a href={makeHref(totalPages)}>마지막</a>
     </nav>
   ),
 }));
@@ -124,5 +127,34 @@ describe('QuestionList', () => {
     expect(
       screen.getByRole('link', { name: QUESTIONS[1].content }),
     ).toHaveAttribute('href', '/questions/question-2');
+  });
+
+  test('요청한 페이지가 마지막 페이지보다 크면 응답 페이지를 렌더링한다', async () => {
+    mockServerFetch.mockResolvedValueOnce(
+      createQuestionListResponse({
+        page: 2,
+        totalPages: 2,
+      }),
+    );
+
+    render(await QuestionList({ page: 3, bookmarkFilter: false }));
+
+    expect(screen.getByRole('navigation')).toHaveTextContent('2 / 2');
+  });
+
+  test('응답 페이지를 렌더링할 때 북마크 필터 링크를 유지한다', async () => {
+    mockServerFetch.mockResolvedValueOnce(
+      createQuestionListResponse({
+        page: 2,
+        totalPages: 2,
+      }),
+    );
+
+    render(await QuestionList({ page: 3, bookmarkFilter: true }));
+
+    expect(screen.getByRole('link', { name: '마지막' })).toHaveAttribute(
+      'href',
+      '/?page=2&bookmarked=1',
+    );
   });
 });
