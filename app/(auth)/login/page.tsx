@@ -1,4 +1,5 @@
-﻿import { GitHubLoginButton } from '@/components/auth/github-login-button';
+﻿import { auth } from '@/auth';
+import { GitHubLoginButton } from '@/components/auth/github-login-button';
 import { GoogleLoginButton } from '@/components/auth/google-login-button';
 import { DarkModeToggle } from '@/components/theme/dark-mode-toggle';
 import {
@@ -9,6 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import Image from 'next/image';
+import { redirect } from 'next/navigation';
 
 type LoginPageProps = {
   searchParams?: Promise<{
@@ -21,6 +23,12 @@ const ACCOUNT_NOT_LINKED_ERROR = 'OAuthAccountNotLinked';
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const isAccountNotLinked = params?.error === ACCOUNT_NOT_LINKED_ERROR;
+
+  const session = await auth();
+
+  if (session?.user) {
+    redirect('/');
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-linear-to-br from-background via-sky-100 to-background dark:via-sky-950">
