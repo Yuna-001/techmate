@@ -8,17 +8,17 @@ const ERROR_MESSAGE: Record<AccountLinkError, string> = {
   LinkExpired: '계정 연동 요청을 확인할 수 없습니다. 다시 시도해 주세요.',
 };
 
-type AccountLinkResultAlertProps = {
+type AccountLinkAlertProps = {
   linkedProvider: AccountProvider | null;
   error: AccountLinkError | null;
   providers: AccountProvider[];
 };
 
-export function AccountLinkResultAlert({
+export function AccountLinkAlert({
   linkedProvider,
   error,
   providers,
-}: AccountLinkResultAlertProps) {
+}: AccountLinkAlertProps) {
   if (error) {
     return (
       <div

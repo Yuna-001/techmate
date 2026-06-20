@@ -1,5 +1,5 @@
 import { AccountJoinedAtSection } from '@/components/account/account-joined-at-section';
-import { AccountLinkResultAlert } from '@/components/account/account-link-result-alert';
+import { AccountLinkAlert } from '@/components/account/account-link-alert';
 import { DeleteAccountSection } from '@/components/account/delete-account-section';
 import { LinkedProvidersSection } from '@/components/account/linked-providers-section';
 import { RetryButton } from '@/components/common/retry-button';
@@ -79,7 +79,7 @@ export default async function AccountPage({ searchParams }: AccountPageProps) {
 
   return (
     <div className="flex flex-col gap-8">
-      <AccountLinkResultAlert
+      <AccountLinkAlert
         linkedProvider={linkedProvider}
         error={linkError}
         providers={providers}
