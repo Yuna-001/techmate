@@ -1,3 +1,4 @@
+import { cn } from '@/lib/utils';
 import { PROVIDER_LABEL } from '@/lib/constants/account-provider';
 import type { AccountLinkError, AccountProvider } from '@/types/account';
 
@@ -19,12 +20,13 @@ export function AccountLinkAlert({
   error,
   providers,
 }: AccountLinkAlertProps) {
+  const baseClass = 'break-keep rounded-md border px-3 py-2 text-sm';
+  const errorClass = 'border-destructive/30 bg-destructive/10 text-destructive';
+  const successClass = 'border-primary/30 bg-primary/10 text-primary';
+
   if (error) {
     return (
-      <div
-        role="alert"
-        className="break-keep rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
-      >
+      <div role="alert" className={cn(baseClass, errorClass)}>
         {ERROR_MESSAGE[error]}
       </div>
     );
@@ -39,11 +41,7 @@ export function AccountLinkAlert({
   return (
     <div
       role="alert"
-      className={
-        hasLinkedProvider
-          ? 'break-keep rounded-md border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary'
-          : 'break-keep rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive'
-      }
+      className={cn(baseClass, hasLinkedProvider ? successClass : errorClass)}
     >
       {hasLinkedProvider
         ? `${PROVIDER_LABEL[linkedProvider]} 계정 연동이 완료되었습니다.`

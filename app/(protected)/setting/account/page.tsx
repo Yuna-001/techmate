@@ -30,7 +30,7 @@ const getJoinedAtLabel = (createdAt: string | null) => {
   });
 };
 
-const getLinkedProvider = (
+const parseLinkedProvider = (
   linked: string | string[] | undefined,
 ): AccountProvider | null => {
   if (typeof linked !== 'string') {
@@ -40,7 +40,7 @@ const getLinkedProvider = (
   return linked === 'google' || linked === 'github' ? linked : null;
 };
 
-const getAccountLinkError = (
+const parseAccountLinkError = (
   error: string | string[] | undefined,
 ): AccountLinkError | null => {
   if (typeof error !== 'string') {
@@ -57,8 +57,8 @@ const getAccountLinkError = (
 
 export default async function AccountPage({ searchParams }: AccountPageProps) {
   const params = await searchParams;
-  const linkedProvider = getLinkedProvider(params?.linked);
-  const linkError = getAccountLinkError(params?.error);
+  const linkedProvider = parseLinkedProvider(params?.linked);
+  const linkError = parseAccountLinkError(params?.error);
   const result = await serverFetch<AccountResponse>('/api/me', {
     cache: 'no-store',
   });
