@@ -85,25 +85,28 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
 
-    // 전체 질문 개수, 현재 페이지 질문 목록 조회
-    const [totalCount, questionDocs] = await Promise.all([
-      QuestionModel.countDocuments(filter),
-      QuestionModel.find(filter, {
-        _id: 1,
-        content: 1,
-        tags: 1,
-        isBookmarked: 1,
-        createdAt: 1,
+    // 전체 질문 개수 조회 후, 요청 페이지가 범위를 벗어나면 마지막 페이지로 보정
+    const totalCount = await QuestionModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalCount / limit);
+    const currentPage =
+      totalPages > 0 ? Math.min(page, totalPages) : DEFAULT_PAGE;
+
+    // 현재 페이지 질문 목록 조회
+    const questionDocs = await QuestionModel.find(filter, {
+      _id: 1,
+      content: 1,
+      tags: 1,
+      isBookmarked: 1,
+      createdAt: 1,
+    })
+      .sort({
+        lastActivityAt: -1, // 최근 활동(질문 생성/답변) 순으로 정렬
+        createdAt: -1, // 최근 생성된 순으로 정렬
+        _id: -1,
       })
-        .sort({
-          lastActivityAt: -1, // 최근 활동(질문 생성/답변) 순으로 정렬
-          createdAt: -1, // 최근 생성된 순으로 정렬
-          _id: -1,
-        })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean<QuestionDoc[]>(),
-    ]);
+      .skip((currentPage - 1) * limit)
+      .limit(limit)
+      .lean<QuestionDoc[]>();
 
     // 응답에 사용할 형태로 매핑
     const questionList: QuestionListItem[] = questionDocs.map((doc) => ({
@@ -115,14 +118,13 @@ export async function GET(req: Request) {
     }));
 
     // 페이지네이션 메타데이터 계산
-    const totalPages = Math.ceil(totalCount / limit);
-    const hasNextPage = page < totalPages;
+    const hasNextPage = currentPage < totalPages;
 
     // 질문 목록 응답
     return NextResponse.json(
       {
         items: questionList,
-        page,
+        page: currentPage,
         limit,
         totalCount,
         totalPages,

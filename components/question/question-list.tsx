@@ -5,9 +5,8 @@ import { RetryButton } from '@/components/common/retry-button';
 import { QuestionPreviewCard } from '@/components/question/question-preview-card';
 import { serverFetch } from '@/lib/fetch/server';
 import type { QuestionListResponse } from '@/types/question';
-import { redirect } from 'next/navigation';
 
-const QUESTIONS_PAGE_SIZE = 5;
+const QUESTIONS_PAGE_SIZE = 2;
 
 export async function QuestionList({
   page,
@@ -43,17 +42,13 @@ export async function QuestionList({
     );
   }
 
-  const { items, totalCount, totalPages } = result.data;
+  const { items, page: currentPage, totalCount, totalPages } = result.data;
 
   const makeHref = (p: number) => {
     const qs = new URLSearchParams({ page: String(p) });
     if (bookmarkFilter) qs.set('bookmarked', '1');
     return `/?${qs.toString()}`;
   };
-
-  if (totalPages > 0 && page > totalPages) {
-    redirect(makeHref(totalPages));
-  }
 
   return (
     <>
@@ -78,7 +73,7 @@ export async function QuestionList({
       )}
 
       <ResponsivePagination
-        page={page}
+        page={currentPage}
         totalPages={totalPages}
         makeHref={makeHref}
       />

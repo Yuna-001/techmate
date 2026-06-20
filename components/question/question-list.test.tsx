@@ -3,17 +3,10 @@ import { serverFetch } from '@/lib/fetch/server';
 import type { MockClientFetch } from '@/test/types';
 import type { QuestionListResponse } from '@/types/question';
 import { render, screen, within } from '@testing-library/react';
-import { redirect } from 'next/navigation';
 import { QuestionList } from './question-list';
 
 jest.mock('@/lib/fetch/server', () => ({
   serverFetch: jest.fn(),
-}));
-
-jest.mock('next/navigation', () => ({
-  redirect: jest.fn((href: string) => {
-    throw new Error(`NEXT_REDIRECT:${href}`);
-  }),
 }));
 
 jest.mock('@/components/question/question-preview-card', () => ({
@@ -28,18 +21,20 @@ jest.mock('@/components/common/responsive-pagination', () => ({
   ResponsivePagination: ({
     page,
     totalPages,
+    makeHref,
   }: {
     page: number;
     totalPages: number;
+    makeHref: (page: number) => string;
   }) => (
     <nav aria-label="페이지네이션">
       {page} / {totalPages}
+      <a href={makeHref(totalPages)}>마지막</a>
     </nav>
   ),
 }));
 
 const mockServerFetch = serverFetch as unknown as MockClientFetch;
-const mockRedirect = redirect as unknown as jest.Mock;
 
 const QUESTIONS = [
   {
@@ -134,33 +129,32 @@ describe('QuestionList', () => {
     ).toHaveAttribute('href', '/questions/question-2');
   });
 
-  test('요청한 페이지가 마지막 페이지보다 크면 마지막 페이지로 이동한다', async () => {
+  test('요청한 페이지가 마지막 페이지보다 크면 응답 페이지를 렌더링한다', async () => {
     mockServerFetch.mockResolvedValueOnce(
       createQuestionListResponse({
-        page: 3,
+        page: 2,
         totalPages: 2,
       }),
     );
 
-    await expect(
-      QuestionList({ page: 3, bookmarkFilter: false }),
-    ).rejects.toThrow('NEXT_REDIRECT:/?page=2');
+    render(await QuestionList({ page: 3, bookmarkFilter: false }));
 
-    expect(mockRedirect).toHaveBeenCalledWith('/?page=2');
+    expect(screen.getByRole('navigation')).toHaveTextContent('2 / 2');
   });
 
-  test('초과 페이지를 보정할 때 북마크 필터를 유지한다', async () => {
+  test('응답 페이지를 렌더링할 때 북마크 필터 링크를 유지한다', async () => {
     mockServerFetch.mockResolvedValueOnce(
       createQuestionListResponse({
-        page: 3,
+        page: 2,
         totalPages: 2,
       }),
     );
 
-    await expect(
-      QuestionList({ page: 3, bookmarkFilter: true }),
-    ).rejects.toThrow('NEXT_REDIRECT:/?page=2&bookmarked=1');
+    render(await QuestionList({ page: 3, bookmarkFilter: true }));
 
-    expect(mockRedirect).toHaveBeenCalledWith('/?page=2&bookmarked=1');
+    expect(screen.getByRole('link', { name: '마지막' })).toHaveAttribute(
+      'href',
+      '/?page=2&bookmarked=1',
+    );
   });
 });
