@@ -198,6 +198,14 @@ export async function POST() {
     }
 
     const { position, experience, skills } = profile;
+    const focusSkill =
+      skills.length > 0
+        ? skills[Math.floor(Math.random() * skills.length)]
+        : null;
+    const auxiliarySkills =
+      focusSkill !== null
+        ? skills.filter((skill) => skill !== focusSkill)
+        : skills;
 
     // OpenAI에 넘길 사용자 소개 텍스트 구성
     let introduction = `- 직무: ${position}`;
@@ -206,8 +214,12 @@ export async function POST() {
       introduction += `\n- 경력: ${experience === 0 ? '신입' : `${experience}년차`}`;
     }
 
-    if (skills.length > 0) {
-      introduction += `\n- 기술 스택: ${skills.join(', ')}`;
+    if (focusSkill !== null) {
+      introduction += `\n- 이번 질문의 중심 기술: ${focusSkill}`;
+    }
+
+    if (auxiliarySkills.length > 0) {
+      introduction += `\n- 참고 가능한 보조 기술: ${auxiliarySkills.join(', ')}`;
     }
 
     if (prevQuestions.length > 0) {
