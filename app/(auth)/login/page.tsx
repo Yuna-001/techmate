@@ -1,4 +1,5 @@
-﻿import { GitHubLoginButton } from '@/components/auth/github-login-button';
+﻿import { auth } from '@/auth';
+import { GitHubLoginButton } from '@/components/auth/github-login-button';
 import { GoogleLoginButton } from '@/components/auth/google-login-button';
 import { DarkModeToggle } from '@/components/theme/dark-mode-toggle';
 import {
@@ -9,8 +10,28 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import Image from 'next/image';
+import { redirect } from 'next/navigation';
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams?: Promise<{
+    error?: string | string[];
+  }>;
+};
+
+const ACCOUNT_NOT_LINKED_ERROR = 'OAuthAccountNotLinked';
+const SESSION_REQUIRED_ERROR = 'SessionRequired';
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams;
+  const isAccountNotLinked = params?.error === ACCOUNT_NOT_LINKED_ERROR;
+  const isSessionRequired = params?.error === SESSION_REQUIRED_ERROR;
+
+  const session = await auth();
+
+  if (session?.user) {
+    redirect('/');
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-linear-to-br from-background via-sky-100 to-background dark:via-sky-950">
       <header className="flex items-center justify-between gap-4 px-4 py-2 sm:px-6">
@@ -41,6 +62,24 @@ export default function LoginPage() {
           <CardContent className="flex flex-col gap-4">
             <GoogleLoginButton />
             <GitHubLoginButton />
+            {isAccountNotLinked && (
+              <div
+                role="alert"
+                className="my-1 break-keep text-center rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              >
+                <p>이미 같은 이메일로 가입된 계정이 있습니다. </p>
+                <p>처음 사용한 로그인 방식으로 로그인해 주세요.</p>
+              </div>
+            )}
+            {isSessionRequired && (
+              <div
+                role="alert"
+                className="my-1 break-keep text-center rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              >
+                <p>로그인이 필요합니다.</p>
+                <p>다시 로그인한 뒤 계정 연동을 시도해 주세요.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

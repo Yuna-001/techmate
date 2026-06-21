@@ -1,6 +1,12 @@
 export type AccountProvider = 'github' | 'google';
 
+export type AccountLinkError =
+  | 'AlreadyLinked'
+  | 'AlreadyLinkedToCurrent'
+  | 'LinkRequired'
+  | 'LinkExpired';
+
 export type AccountResponse = {
-  provider: AccountProvider | null;
+  providers: AccountProvider[];
   createdAt: string | null;
 };
