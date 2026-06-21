@@ -9,13 +9,13 @@ import {
 type QuestionDetailSectionProps = {
   question: string;
   tags: string[];
-  idealAnswer: string;
+  exampleAnswer: string;
 };
 
 export function QuestionDetailSection({
   question,
   tags,
-  idealAnswer,
+  exampleAnswer,
 }: QuestionDetailSectionProps) {
   return (
     <section className="flex flex-col gap-6">
@@ -32,7 +32,7 @@ export function QuestionDetailSection({
             </AccordionTrigger>
           </div>
           <AccordionContent className="rounded-md p-4 bg-gray-200 dark:bg-gray-700">
-            {idealAnswer}
+            {exampleAnswer}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

@@ -227,7 +227,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     );
   }
 
-  let question: { content: string; idealAnswer: string } | null;
+  let question: { content: string; exampleAnswer: string } | null;
 
   try {
     await dbConnect();
@@ -235,8 +235,8 @@ export async function POST(req: Request, { params }: RouteParams) {
     // 질문을 조회하여 질문 내용과 이상적 답안 확인
     question = await QuestionModel.findOne(
       { _id: questionId, userId },
-      { content: 1, idealAnswer: 1 },
-    ).lean<{ content: string; idealAnswer: string } | null>();
+      { content: 1, exampleAnswer: 1 },
+    ).lean<{ content: string; exampleAnswer: string } | null>();
   } catch (err) {
     console.error(`POST /api/questions/${questionId}/answers db error`, err);
 
@@ -258,7 +258,7 @@ export async function POST(req: Request, { params }: RouteParams) {
   try {
     feedback = await generateFeedback({
       question: question.content,
-      idealAnswer: question.idealAnswer,
+      exampleAnswer: question.exampleAnswer,
       answer: trimmedAnswer,
     });
   } catch (err) {

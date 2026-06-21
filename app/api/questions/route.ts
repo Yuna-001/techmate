@@ -149,7 +149,7 @@ export async function GET(req: Request) {
 
 type GeneratedQuestion = {
   content: string;
-  idealAnswer: string;
+  exampleAnswer: string;
   tags: string[];
 };
 
@@ -287,12 +287,12 @@ export async function POST() {
       );
     }
 
-    const { content, idealAnswer, tags } = parsed;
+    const { content, exampleAnswer, tags } = parsed;
 
-    // content / idealAnswer / tags 필드 유효성 검사
+    // content / exampleAnswer / tags 필드 유효성 검사
     if (
       typeof content !== 'string' ||
-      typeof idealAnswer !== 'string' ||
+      typeof exampleAnswer !== 'string' ||
       !Array.isArray(tags) ||
       tags.length === 0 ||
       !tags.every((tag) => typeof tag === 'string')
@@ -322,7 +322,7 @@ export async function POST() {
     const { _id } = await QuestionModel.create({
       userId,
       content,
-      idealAnswer,
+      exampleAnswer,
       tags: normalizedTags,
     });
 

@@ -5,7 +5,7 @@ import type { Feedback } from '@/models/answer';
 
 type FeedbackInput = {
   question: string;
-  idealAnswer: string;
+  exampleAnswer: string;
   answer: string;
 };
 
@@ -92,7 +92,7 @@ const FEEDBACK_RESPONSE_FORMAT = {
 
 /** 질문/예시 답변/사용자 답변으로 user 프롬프트 문자열을 생성하는 함수 */
 const createFeedbackUserPrompt = (input: FeedbackInput): string => {
-  const { question, idealAnswer, answer } = input;
+  const { question, exampleAnswer, answer } = input;
 
   return [
     '다음은 기술 면접 질문, 예시 답변, 그리고 지원자의 실제 답변입니다.',
@@ -101,7 +101,7 @@ const createFeedbackUserPrompt = (input: FeedbackInput): string => {
     question,
     '',
     '[예시 답변]',
-    idealAnswer,
+    exampleAnswer,
     '',
     '[지원자 답변]',
     answer,

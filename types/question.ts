@@ -2,7 +2,7 @@ import { PaginatedResponse } from './pagination';
 
 export interface QuestionDetailCommonFields {
   content: string;
-  idealAnswer: string;
+  exampleAnswer: string;
   isBookmarked: boolean;
   tags: string[];
 }
