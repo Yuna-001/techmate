@@ -42,7 +42,13 @@ export async function QuestionList({
     );
   }
 
-  const { items, totalCount, totalPages } = result.data;
+  const { items, page: currentPage, totalCount, totalPages } = result.data;
+
+  const makeHref = (p: number) => {
+    const qs = new URLSearchParams({ page: String(p) });
+    if (bookmarkFilter) qs.set('bookmarked', '1');
+    return `/?${qs.toString()}`;
+  };
 
   return (
     <>
@@ -67,13 +73,9 @@ export async function QuestionList({
       )}
 
       <ResponsivePagination
-        page={page}
+        page={currentPage}
         totalPages={totalPages}
-        makeHref={(p) => {
-          const qs = new URLSearchParams({ page: String(p) });
-          if (bookmarkFilter) qs.set('bookmarked', '1');
-          return `/?${qs.toString()}`;
-        }}
+        makeHref={makeHref}
       />
     </>
   );

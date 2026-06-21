@@ -85,25 +85,28 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
 
-    // 전체 질문 개수, 현재 페이지 질문 목록 조회
-    const [totalCount, questionDocs] = await Promise.all([
-      QuestionModel.countDocuments(filter),
-      QuestionModel.find(filter, {
-        _id: 1,
-        content: 1,
-        tags: 1,
-        isBookmarked: 1,
-        createdAt: 1,
+    // 전체 질문 개수 조회 후, 요청 페이지가 범위를 벗어나면 마지막 페이지로 보정
+    const totalCount = await QuestionModel.countDocuments(filter);
+    const totalPages = Math.ceil(totalCount / limit);
+    const currentPage =
+      totalPages > 0 ? Math.min(page, totalPages) : DEFAULT_PAGE;
+
+    // 현재 페이지 질문 목록 조회
+    const questionDocs = await QuestionModel.find(filter, {
+      _id: 1,
+      content: 1,
+      tags: 1,
+      isBookmarked: 1,
+      createdAt: 1,
+    })
+      .sort({
+        lastActivityAt: -1, // 최근 활동(질문 생성/답변) 순으로 정렬
+        createdAt: -1, // 최근 생성된 순으로 정렬
+        _id: -1,
       })
-        .sort({
-          lastActivityAt: -1, // 최근 활동(질문 생성/답변) 순으로 정렬
-          createdAt: -1, // 최근 생성된 순으로 정렬
-          _id: -1,
-        })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean<QuestionDoc[]>(),
-    ]);
+      .skip((currentPage - 1) * limit)
+      .limit(limit)
+      .lean<QuestionDoc[]>();
 
     // 응답에 사용할 형태로 매핑
     const questionList: QuestionListItem[] = questionDocs.map((doc) => ({
@@ -115,14 +118,13 @@ export async function GET(req: Request) {
     }));
 
     // 페이지네이션 메타데이터 계산
-    const totalPages = Math.ceil(totalCount / limit);
-    const hasNextPage = page < totalPages;
+    const hasNextPage = currentPage < totalPages;
 
     // 질문 목록 응답
     return NextResponse.json(
       {
         items: questionList,
-        page,
+        page: currentPage,
         limit,
         totalCount,
         totalPages,
@@ -147,7 +149,7 @@ export async function GET(req: Request) {
 
 type GeneratedQuestion = {
   content: string;
-  idealAnswer: string;
+  exampleAnswer: string;
   tags: string[];
 };
 
@@ -196,6 +198,14 @@ export async function POST() {
     }
 
     const { position, experience, skills } = profile;
+    const focusSkill =
+      skills.length > 0
+        ? skills[Math.floor(Math.random() * skills.length)]
+        : null;
+    const auxiliarySkills =
+      focusSkill !== null
+        ? skills.filter((skill) => skill !== focusSkill)
+        : skills;
 
     // OpenAI에 넘길 사용자 소개 텍스트 구성
     let introduction = `- 직무: ${position}`;
@@ -204,8 +214,12 @@ export async function POST() {
       introduction += `\n- 경력: ${experience === 0 ? '신입' : `${experience}년차`}`;
     }
 
-    if (skills.length > 0) {
-      introduction += `\n- 기술 스택: ${skills.join(', ')}`;
+    if (focusSkill !== null) {
+      introduction += `\n- 이번 질문의 중심 기술: ${focusSkill}`;
+    }
+
+    if (auxiliarySkills.length > 0) {
+      introduction += `\n- 참고 가능한 보조 기술: ${auxiliarySkills.join(', ')}`;
     }
 
     if (prevQuestions.length > 0) {
@@ -273,12 +287,12 @@ export async function POST() {
       );
     }
 
-    const { content, idealAnswer, tags } = parsed;
+    const { content, exampleAnswer, tags } = parsed;
 
-    // content / idealAnswer / tags 필드 유효성 검사
+    // content / exampleAnswer / tags 필드 유효성 검사
     if (
       typeof content !== 'string' ||
-      typeof idealAnswer !== 'string' ||
+      typeof exampleAnswer !== 'string' ||
       !Array.isArray(tags) ||
       tags.length === 0 ||
       !tags.every((tag) => typeof tag === 'string')
@@ -308,7 +322,7 @@ export async function POST() {
     const { _id } = await QuestionModel.create({
       userId,
       content,
-      idealAnswer,
+      exampleAnswer,
       tags: normalizedTags,
     });
 

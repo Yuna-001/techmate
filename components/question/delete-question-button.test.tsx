@@ -3,14 +3,17 @@ import { FAIL_500, SUCCESS_204 } from '@/test/fixtures/fetch';
 import type { MockClientFetch } from '@/test/types';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ComponentProps } from 'react';
 import { toast } from 'sonner';
 import { DeleteQuestionButton } from './delete-question-button';
 
 const mockPush = jest.fn();
+const mockRefresh = jest.fn();
 
 jest.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
+    refresh: mockRefresh,
   }),
 }));
 
@@ -27,9 +30,11 @@ const mockClientFetch = clientFetch as unknown as MockClientFetch;
 const QUESTION_ID = 'q1';
 
 describe('DeleteQuestionButton', () => {
-  const setup = () => {
+  const setup = (
+    props: Partial<ComponentProps<typeof DeleteQuestionButton>> = {},
+  ) => {
     const user = userEvent.setup();
-    render(<DeleteQuestionButton questionId={QUESTION_ID} />);
+    render(<DeleteQuestionButton questionId={QUESTION_ID} {...props} />);
 
     return { user };
   };
@@ -88,6 +93,18 @@ describe('DeleteQuestionButton', () => {
     await user.click(getConfirmButton(dialog));
 
     expect(mockPush).toHaveBeenCalledWith('/');
+  });
+
+  test('삭제 후 새로고침 옵션이면 현재 페이지를 새로고침한다', async () => {
+    mockClientFetch.mockResolvedValueOnce(SUCCESS_204);
+
+    const { user } = setup({ afterDelete: 'refresh' });
+    const dialog = await openDialog(user);
+
+    await user.click(getConfirmButton(dialog));
+
+    expect(mockRefresh).toHaveBeenCalledTimes(1);
+    expect(mockPush).not.toHaveBeenCalled();
   });
 
   test('질문 삭제 요청이 실패하면 에러 토스트를 표시한다', async () => {

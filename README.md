@@ -129,7 +129,7 @@ erDiagram
         ObjectId _id PK
         ObjectId userId FK
         string content
-        string idealAnswer
+        string exampleAnswer
         string[] tags
         boolean isBookmarked
         date lastActivityAt

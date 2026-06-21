@@ -3,7 +3,7 @@ import mongoose, { Schema, Types } from 'mongoose';
 interface QuestionDocument {
   userId: Types.ObjectId;
   content: string;
-  idealAnswer: string;
+  exampleAnswer: string;
   tags: string[];
   isBookmarked: boolean;
   lastActivityAt: Date;
@@ -20,7 +20,7 @@ const questionSchema = new Schema<QuestionDocument>({
     required: true,
     trim: true,
   },
-  idealAnswer: {
+  exampleAnswer: {
     type: String,
     required: true,
     trim: true,

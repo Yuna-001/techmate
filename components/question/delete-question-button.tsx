@@ -21,12 +21,14 @@ type DeleteQuestionButtonProps = {
   questionId: string;
   className?: string;
   size?: number;
+  afterDelete?: 'home' | 'refresh';
 };
 
 export function DeleteQuestionButton({
   questionId,
   className,
   size = 32,
+  afterDelete = 'home',
 }: DeleteQuestionButtonProps) {
   const router = useRouter();
 
@@ -41,6 +43,11 @@ export function DeleteQuestionButton({
         toast.error('질문 삭제에 실패했습니다.', {
           description: '잠시 후 다시 시도해주세요.',
         });
+        return;
+      }
+
+      if (afterDelete === 'refresh') {
+        router.refresh();
         return;
       }
 
