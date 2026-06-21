@@ -44,11 +44,18 @@ export const prepareLinkProvider = async (
     const now = new Date();
     const token = crypto.randomUUID();
     const db = client.db();
+    const pendingLinks = db.collection<PendingLinkDoc>('pendingLinks');
+    const userObjectId = new ObjectId(userId);
 
-    await db.collection<PendingLinkDoc>('pendingLinks').insertOne({
+    await pendingLinks.deleteMany({
+      userId: userObjectId,
+      provider,
+    });
+
+    await pendingLinks.insertOne({
       token,
       provider,
-      userId: new ObjectId(userId),
+      userId: userObjectId,
       createdAt: now,
       expiresAt: new Date(now.getTime() + LINK_TOKEN_MAX_AGE_SECONDS * 1000),
     });

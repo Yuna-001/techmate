@@ -4,6 +4,7 @@ import { ObjectId } from 'mongodb';
 import { cookies } from 'next/headers';
 import { prepareLinkProvider } from './actions';
 
+const deleteMany = jest.fn();
 const insertOne = jest.fn();
 const setCookie = jest.fn();
 const requireUserId = jest.fn();
@@ -17,6 +18,7 @@ jest.mock('@/lib/db', () => ({
   default: {
     db: jest.fn(() => ({
       collection: jest.fn(() => ({
+        deleteMany,
         insertOne,
       })),
     })),
@@ -36,6 +38,7 @@ describe('prepareLinkProvider', () => {
     requireUserId.mockResolvedValue({
       userId: '507f1f77bcf86cd799439011',
     });
+    deleteMany.mockResolvedValue({ acknowledged: true, deletedCount: 0 });
     insertOne.mockResolvedValue({ acknowledged: true });
   });
 
@@ -47,6 +50,10 @@ describe('prepareLinkProvider', () => {
     const result = await prepareLinkProvider('github');
 
     expect(result).toEqual({ ok: true });
+    expect(deleteMany).toHaveBeenCalledWith({
+      userId: new ObjectId('507f1f77bcf86cd799439011'),
+      provider: 'github',
+    });
     expect(insertOne).toHaveBeenCalledWith({
       token: 'link-token',
       provider: 'github',
@@ -54,6 +61,9 @@ describe('prepareLinkProvider', () => {
       createdAt: expect.any(Date),
       expiresAt: expect.any(Date),
     });
+    expect(deleteMany.mock.invocationCallOrder[0]).toBeLessThan(
+      insertOne.mock.invocationCallOrder[0],
+    );
 
     const pendingLink = insertOne.mock.calls[0][0];
     expect(
@@ -74,6 +84,7 @@ describe('prepareLinkProvider', () => {
 
     expect(result).toEqual({ ok: false, error: 'InvalidProvider' });
     expect(requireUserId).not.toHaveBeenCalled();
+    expect(deleteMany).not.toHaveBeenCalled();
     expect(insertOne).not.toHaveBeenCalled();
     expect(setCookie).not.toHaveBeenCalled();
   });
@@ -84,6 +95,7 @@ describe('prepareLinkProvider', () => {
     const result = await prepareLinkProvider('github');
 
     expect(result).toEqual({ ok: false, error: 'SessionRequired' });
+    expect(deleteMany).not.toHaveBeenCalled();
     expect(insertOne).not.toHaveBeenCalled();
     expect(setCookie).not.toHaveBeenCalled();
   });
@@ -94,6 +106,10 @@ describe('prepareLinkProvider', () => {
     const result = await prepareLinkProvider('github');
 
     expect(result).toEqual({ ok: false, error: 'Unknown' });
+    expect(deleteMany).toHaveBeenCalledWith({
+      userId: new ObjectId('507f1f77bcf86cd799439011'),
+      provider: 'github',
+    });
     expect(insertOne).toHaveBeenCalled();
     expect(setCookie).not.toHaveBeenCalled();
   });
