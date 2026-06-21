@@ -149,7 +149,7 @@ export async function GET(req: Request) {
 
 type GeneratedQuestion = {
   content: string;
-  idealAnswer: string;
+  exampleAnswer: string;
   tags: string[];
 };
 
@@ -198,6 +198,14 @@ export async function POST() {
     }
 
     const { position, experience, skills } = profile;
+    const focusSkill =
+      skills.length > 0
+        ? skills[Math.floor(Math.random() * skills.length)]
+        : null;
+    const auxiliarySkills =
+      focusSkill !== null
+        ? skills.filter((skill) => skill !== focusSkill)
+        : skills;
 
     // OpenAI에 넘길 사용자 소개 텍스트 구성
     let introduction = `- 직무: ${position}`;
@@ -206,8 +214,12 @@ export async function POST() {
       introduction += `\n- 경력: ${experience === 0 ? '신입' : `${experience}년차`}`;
     }
 
-    if (skills.length > 0) {
-      introduction += `\n- 기술 스택: ${skills.join(', ')}`;
+    if (focusSkill !== null) {
+      introduction += `\n- 이번 질문의 중심 기술: ${focusSkill}`;
+    }
+
+    if (auxiliarySkills.length > 0) {
+      introduction += `\n- 참고 가능한 보조 기술: ${auxiliarySkills.join(', ')}`;
     }
 
     if (prevQuestions.length > 0) {
@@ -275,12 +287,12 @@ export async function POST() {
       );
     }
 
-    const { content, idealAnswer, tags } = parsed;
+    const { content, exampleAnswer, tags } = parsed;
 
-    // content / idealAnswer / tags 필드 유효성 검사
+    // content / exampleAnswer / tags 필드 유효성 검사
     if (
       typeof content !== 'string' ||
-      typeof idealAnswer !== 'string' ||
+      typeof exampleAnswer !== 'string' ||
       !Array.isArray(tags) ||
       tags.length === 0 ||
       !tags.every((tag) => typeof tag === 'string')
@@ -310,7 +322,7 @@ export async function POST() {
     const { _id } = await QuestionModel.create({
       userId,
       content,
-      idealAnswer,
+      exampleAnswer,
       tags: normalizedTags,
     });
 

@@ -5,7 +5,7 @@ import type { Feedback } from '@/models/answer';
 
 type FeedbackInput = {
   question: string;
-  idealAnswer: string;
+  exampleAnswer: string;
   answer: string;
 };
 
@@ -16,7 +16,7 @@ const FEEDBACK_SYSTEM_PROMPT = [
   '평가 기준:',
   '- 기술적 정확성, 핵심 개념 포함 여부, 설명의 구체성, 면접 답변으로서의 전달력을 기준으로 평가합니다.',
   '- 추측하지 말고, 지원자의 답변에 근거해서 평가합니다.',
-  '- 모범 답안 예시는 평가 기준으로 참고하되, 의미상 동등한 설명은 정답으로 인정합니다.',
+  '- 예시 답변은 평가 기준으로 참고하되, 의미상 동등한 설명은 정답으로 인정합니다.',
   '',
   '점수 기준:',
   '- 90~100: 핵심 개념이 정확하고, 구조적이며, 면접 답변으로 충분히 우수합니다.',
@@ -32,7 +32,7 @@ const FEEDBACK_SYSTEM_PROMPT = [
   '- strengths는 답변에서 실제로 잘 드러난 점만 0~3개 작성합니다.',
   '- improvements는 다음 답변에서 바로 보완할 수 있는 점만 0~3개 작성합니다.',
   '- 억지로 장점이나 개선점을 만들지 마세요.',
-  '- missingKeywords는 질문과 모범 답안 예시를 기준으로 중요하지만, 지원자의 답변에서 빠졌거나 충분히 드러나지 않은 핵심 개념을 0~3개 작성합니다.',
+  '- missingKeywords는 질문과 예시 답변을 기준으로 중요하지만, 지원자의 답변에서 빠졌거나 충분히 드러나지 않은 핵심 개념을 0~3개 작성합니다.',
   '- missingKeywords는 한국어를 기본으로 작성하되, SSG, CSR, SSR, TypeScript, Closure, Hoisting처럼 일반적으로 영어 약어 또는 영어 명칭으로 쓰는 기술 용어는 그대로 작성합니다.',
   '- 답변에서 이미 의미상 충분히 설명한 개념은 missingKeywords에 포함하지 않습니다.',
   '- 관련 키워드가 없거나 답변이 이미 충분하면 missingKeywords는 빈 배열로 작성합니다.',
@@ -90,18 +90,18 @@ const FEEDBACK_RESPONSE_FORMAT = {
   },
 } as const;
 
-/** 질문/모범 답안/사용자 답변으로 user 프롬프트 문자열을 생성하는 함수 */
+/** 질문/예시 답변/사용자 답변으로 user 프롬프트 문자열을 생성하는 함수 */
 const createFeedbackUserPrompt = (input: FeedbackInput): string => {
-  const { question, idealAnswer, answer } = input;
+  const { question, exampleAnswer, answer } = input;
 
   return [
-    '다음은 기술 면접 질문, 모범 답안, 그리고 지원자의 실제 답변입니다.',
+    '다음은 기술 면접 질문, 예시 답변, 그리고 지원자의 실제 답변입니다.',
     '',
     '[질문]',
     question,
     '',
-    '[모범 답안 예시]',
-    idealAnswer,
+    '[예시 답변]',
+    exampleAnswer,
     '',
     '[지원자 답변]',
     answer,

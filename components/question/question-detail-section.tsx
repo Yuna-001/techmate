@@ -9,13 +9,13 @@ import {
 type QuestionDetailSectionProps = {
   question: string;
   tags: string[];
-  idealAnswer: string;
+  exampleAnswer: string;
 };
 
 export function QuestionDetailSection({
   question,
   tags,
-  idealAnswer,
+  exampleAnswer,
 }: QuestionDetailSectionProps) {
   return (
     <section className="flex flex-col gap-6">
@@ -28,11 +28,11 @@ export function QuestionDetailSection({
         <AccordionItem value="item-1">
           <div className="flex items-center justify-start">
             <AccordionTrigger className="px-2 py-2.5 cursor-pointer hover:no-underline gap-2 -ml-1">
-              모범 답변
+              예시 답변
             </AccordionTrigger>
           </div>
           <AccordionContent className="rounded-md p-4 bg-gray-200 dark:bg-gray-700">
-            {idealAnswer}
+            {exampleAnswer}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

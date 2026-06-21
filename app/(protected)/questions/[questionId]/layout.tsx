@@ -35,7 +35,7 @@ export default async function QuestionLayout({
     );
   }
 
-  const { tags, content: question, isBookmarked, idealAnswer } = result.data;
+  const { tags, content: question, isBookmarked, exampleAnswer } = result.data;
 
   return (
     <div className="flex flex-col gap-8">
@@ -54,7 +54,7 @@ export default async function QuestionLayout({
         <QuestionDetailSection
           question={question}
           tags={tags}
-          idealAnswer={idealAnswer}
+          exampleAnswer={exampleAnswer}
         />
       </div>
       {children}

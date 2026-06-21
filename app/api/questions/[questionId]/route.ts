@@ -63,7 +63,7 @@ export async function GET(_req: Request, { params }: RouteParams) {
       {
         _id: 0,
         content: 1,
-        idealAnswer: 1,
+        exampleAnswer: 1,
         tags: 1,
         isBookmarked: 1,
         createdAt: 1,
