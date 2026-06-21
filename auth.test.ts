@@ -89,6 +89,11 @@ const account: OAuthAccount = {
   provider: 'github',
   providerAccountId: 'github-account-id',
 };
+const originalNodeEnv = process.env.NODE_ENV;
+
+const setNodeEnv = (nodeEnv: string | undefined) => {
+  Reflect.set(process.env, 'NODE_ENV', nodeEnv);
+};
 
 const callSignIn = async (oauthAccount: OAuthAccount | null = account) => {
   const mockNextAuthConfig = (globalThis as TestGlobal).mockNextAuthConfig;
@@ -134,6 +139,10 @@ describe('NextAuth signIn callback OAuth 계정 연동', () => {
       expiresAt: new Date(Date.now() + 60 * 10 * 1000),
     });
     mockFindOne.mockResolvedValue(null);
+  });
+
+  afterEach(() => {
+    setNodeEnv(originalNodeEnv);
   });
 
   test('OAuth account가 없으면 기존 로그인 흐름을 유지한다', async () => {
@@ -211,5 +220,49 @@ describe('NextAuth signIn callback OAuth 계정 연동', () => {
 
   test('아직 연결되지 않은 OAuth 계정은 NextAuth 기본 연결 흐름을 유지한다', async () => {
     await expect(callSignIn()).resolves.toBe(true);
+  });
+
+  test('프로덕션에서는 secure cookie로 세션 토큰을 먼저 조회한다', async () => {
+    setNodeEnv('production');
+
+    await expect(callSignIn()).resolves.toBe(true);
+
+    expect(getToken).toHaveBeenCalledTimes(1);
+    expect(getToken).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ secureCookie: true }),
+    );
+  });
+
+  test('개발 환경에서는 non-secure cookie로 세션 토큰을 먼저 조회한다', async () => {
+    setNodeEnv('development');
+
+    await expect(callSignIn()).resolves.toBe(true);
+
+    expect(getToken).toHaveBeenCalledTimes(1);
+    expect(getToken).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ secureCookie: false }),
+    );
+  });
+
+  test('첫 세션 토큰 조회가 실패하면 반대 secureCookie 값으로 다시 조회한다', async () => {
+    setNodeEnv('production');
+    jest
+      .mocked(getToken)
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce({ sub: currentUserId });
+
+    await expect(callSignIn()).resolves.toBe(true);
+
+    expect(getToken).toHaveBeenCalledTimes(2);
+    expect(getToken).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ secureCookie: true }),
+    );
+    expect(getToken).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ secureCookie: false }),
+    );
   });
 });

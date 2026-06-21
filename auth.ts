@@ -25,16 +25,17 @@ const ACCOUNT_LINK_TOKEN_COOKIE = 'account_link_token';
 // 현재 세션 사용자 확인
 const getCurrentSessionUserId = async () => {
   const headerStore = await headers();
+  const secureCookie = process.env.NODE_ENV === 'production';
   const token =
     (await getToken({
       req: { headers: headerStore },
       secret: process.env.AUTH_SECRET,
-      secureCookie: false,
+      secureCookie,
     })) ??
     (await getToken({
       req: { headers: headerStore },
       secret: process.env.AUTH_SECRET,
-      secureCookie: true,
+      secureCookie: !secureCookie,
     }));
 
   if (!token?.sub || !authAdapter.getUser) {
