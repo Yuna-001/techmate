@@ -1,9 +1,10 @@
-import authConfig from '@/auth.config';
 import { authAdapter } from '@/lib/auth/adapter';
 import client from '@/lib/db';
 import { getToken } from '@auth/core/jwt';
 import { ObjectId } from 'mongodb';
 import NextAuth from 'next-auth';
+import GithubProvider from 'next-auth/providers/github';
+import GoogleProvider from 'next-auth/providers/google';
 import { cookies, headers } from 'next/headers';
 
 type PendingLinkDoc = {
@@ -49,7 +50,21 @@ const getCurrentSessionUserId = async () => {
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: authAdapter,
-  ...authConfig,
+  providers: [
+    GoogleProvider({
+      clientId: process.env.AUTH_GOOGLE_ID as string,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET as string,
+    }),
+    GithubProvider({
+      clientId: process.env.AUTH_GITHUB_ID as string,
+      clientSecret: process.env.AUTH_GITHUB_SECRET as string,
+    }),
+  ],
+  session: {
+    strategy: 'jwt',
+    maxAge: 60 * 60 * 24 * 3,
+  },
+  pages: { signIn: '/login' },
   events: {
     async createUser({ user }) {
       const db = client.db();
@@ -62,7 +77,16 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
   callbacks: {
-    ...authConfig.callbacks,
+    async authorized({ auth }) {
+      return !!auth?.user;
+    },
+    async session({ session, token }) {
+      if (token.sub) {
+        session.user.userId = token.sub;
+      }
+
+      return session;
+    },
     async signIn({ account }) {
       // 비OAuth 로그인: 기존 NextAuth 처리를 유지한다.
       if (!account) {

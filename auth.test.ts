@@ -46,15 +46,14 @@ jest.mock('next-auth', () => ({
   }),
 }));
 
-jest.mock('@/auth.config', () => ({
+jest.mock('next-auth/providers/github', () => ({
   __esModule: true,
-  default: {
-    providers: [],
-    callbacks: {
-      authorized: jest.fn(),
-      session: jest.fn(),
-    },
-  },
+  default: jest.fn(),
+}));
+
+jest.mock('next-auth/providers/google', () => ({
+  __esModule: true,
+  default: jest.fn(),
 }));
 
 jest.mock('@/lib/auth/adapter', () => ({
