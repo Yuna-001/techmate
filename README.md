@@ -6,13 +6,14 @@ AI 기반 기술 면접 연습 서비스
 
 **[→ 서비스 바로가기](https://techmate-ai.com)**
 
----
+<br>
+
 
 ## 기획 의도
 
 기술 면접 준비 과정에서 예상 질문을 여러 곳에서 직접 찾아야 했고, 작성한 답변이 적절한지 스스로 검토해야 했습니다. 이러한 번거로움을 줄이기 위해 질문 생성부터 답변 피드백까지 한 흐름에서 관리할 수 있는 서비스를 만들었습니다.
 
----
+<br>
 
 ## 스크린샷
 
@@ -28,7 +29,7 @@ AI 기반 기술 면접 연습 서비스
 | ------------------------------------------ | --------------------------------------- |
 | ![피드백 페이지](screenshots/feedback.png) | ![계정 페이지](screenshots/account.png) |
 
----
+<br>
 
 ## 주요 기능
 
@@ -39,7 +40,7 @@ AI 기반 기술 면접 연습 서비스
 - **OAuth 로그인** - Google/GitHub 소셜 로그인
 - **소셜 계정 연동** - 하나의 계정에 Google/GitHub 계정을 추가 연동
 
----
+<br>
 
 ## 기술 스택
 
@@ -52,9 +53,11 @@ AI 기반 기술 면접 연습 서비스
 | AI            | OpenAI SDK                                           |
 | 테스트 & 품질 | Jest, React Testing Library, ESLint, Prettier, Husky |
 
----
+<br>
 
 ## 시작하기
+
+<br>
 
 ### 사전 준비
 
@@ -64,6 +67,8 @@ AI 기반 기술 면접 연습 서비스
 - [GitHub OAuth 앱](https://github.com/settings/developers) 등록
 - OpenAI API 키
 
+<br>
+
 ### 설치
 
 ```bash
@@ -71,6 +76,8 @@ git clone https://github.com/Yuna-001/techmate.git
 cd techmate
 npm install
 ```
+
+<br>
 
 ### 환경 변수 설정
 
@@ -90,6 +97,8 @@ cp .env.example .env.local
 | `AUTH_GITHUB_ID`     | GitHub OAuth App Client ID                           |
 | `AUTH_GITHUB_SECRET` | GitHub OAuth App Client Secret                       |
 
+<br>
+
 ### 개발 서버 실행
 
 ```bash
@@ -98,7 +107,7 @@ npm run dev
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인합니다.
 
----
+<br>
 
 ## 프로젝트 구조
 
@@ -114,7 +123,7 @@ techmate/
 └── types/               # TypeScript 타입 정의
 ```
 
----
+<br>
 
 ## 데이터 모델
 
@@ -198,7 +207,7 @@ erDiagram
     ANSWER ||--|| FEEDBACK : "포함 (embedded)"
 ```
 
----
+<br>
 
 ## 스크립트
 
