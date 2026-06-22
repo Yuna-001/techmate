@@ -2,17 +2,17 @@
 
 AI 기반 기술 면접 연습 서비스
 
-사용자 프로필(직군·연차·기술스택)을 바탕으로 AI가 면접 질문을 생성하고, 작성한 답변에 대해 점수·강점·개선점 피드백을 제공합니다.
+사용자 프로필을 바탕으로 AI가 면접 질문을 생성하고, 작성한 답변에 대해 피드백을 제공합니다.
 
-**[→ 서비스 바로가기](https://techmate-dev.vercel.app)**
+**[→ 서비스 바로가기](https://techmate-ai.com)**
 
----
+<br>
 
 ## 기획 의도
 
-면접 준비를 하면서 예상 질문을 여러 사이트에서 찾아야 했고, 작성한 답변이 적절한지 다시 검색해 확인해야 했습니다. 질문과 답변을 한곳에 정리하는 것도 번거로웠기 때문에, 질문 생성부터 답변 피드백까지 한 흐름에서 관리할 수 있는 서비스를 만들었습니다.
+기술 면접 준비 과정에서 예상 질문을 여러 곳에서 직접 찾아야 했고, 작성한 답변이 적절한지 스스로 검토해야 했습니다. 이러한 번거로움을 줄이기 위해 질문 생성부터 답변 피드백까지 한 흐름에서 관리할 수 있는 서비스를 만들었습니다.
 
----
+<br>
 
 ## 스크린샷
 
@@ -20,22 +20,26 @@ AI 기반 기술 면접 연습 서비스
 | -------------------------------- | --------------------------------------- |
 | ![로그인](screenshots/login.png) | ![프로필 설정](screenshots/profile.png) |
 
-| 질문 목록                          | 답변 및 AI 피드백                              |
-| ---------------------------------- | ---------------------------------------------- |
-| ![질문 목록](screenshots/home.png) | ![답변 및 AI 피드백](screenshots/feedback.png) |
+| 홈 화면                          | 질문 페이지                              |
+| -------------------------------- | ---------------------------------------- |
+| ![홈 화면](screenshots/home.png) | ![질문 페이지](screenshots/question.png) |
 
----
+| 피드백 페이지                              | 계정 페이지                             |
+| ------------------------------------------ | --------------------------------------- |
+| ![피드백 페이지](screenshots/feedback.png) | ![계정 페이지](screenshots/account.png) |
+
+<br>
 
 ## 주요 기능
 
-- **AI 면접 질문 생성** — 직군·연차·기술스택 기반 맞춤 질문 생성, 이전 질문 중복 방지
-- **AI 답변 피드백** — 점수(0–100), 강점, 개선점, 누락 키워드 분석
-- **북마크** — 중요한 질문을 따로 모아볼 수 있는 북마크
-- **OAuth 로그인** — Google / GitHub 소셜 로그인
-- **프로필 관리** — 직군·연차·기술스택 설정
-- **다크 모드** — 시스템 설정 연동
+- **맞춤형 기술 면접 질문 생성** - 직군/연차/기술스택 기반
+- **AI 답변 피드백** - 점수(0~100), 강점, 개선점, 누락 키워드 분석
+- **프로필 설정** - 직군/연차/기술스택 설정
+- **북마크** - 중요한 질문 저장 및 필터링
+- **OAuth 로그인** - Google/GitHub 소셜 로그인
+- **소셜 계정 연동** - 하나의 계정에 Google/GitHub 계정을 추가 연동
 
----
+<br>
 
 ## 기술 스택
 
@@ -48,9 +52,11 @@ AI 기반 기술 면접 연습 서비스
 | AI            | OpenAI SDK                                           |
 | 테스트 & 품질 | Jest, React Testing Library, ESLint, Prettier, Husky |
 
----
+<br>
 
 ## 시작하기
+
+<br>
 
 ### 사전 준비
 
@@ -60,6 +66,8 @@ AI 기반 기술 면접 연습 서비스
 - [GitHub OAuth 앱](https://github.com/settings/developers) 등록
 - OpenAI API 키
 
+<br>
+
 ### 설치
 
 ```bash
@@ -67,6 +75,8 @@ git clone https://github.com/Yuna-001/techmate.git
 cd techmate
 npm install
 ```
+
+<br>
 
 ### 환경 변수 설정
 
@@ -86,6 +96,8 @@ cp .env.example .env.local
 | `AUTH_GITHUB_ID`     | GitHub OAuth App Client ID                           |
 | `AUTH_GITHUB_SECRET` | GitHub OAuth App Client Secret                       |
 
+<br>
+
 ### 개발 서버 실행
 
 ```bash
@@ -94,7 +106,7 @@ npm run dev
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 확인합니다.
 
----
+<br>
 
 ## 프로젝트 구조
 
@@ -110,7 +122,7 @@ techmate/
 └── types/               # TypeScript 타입 정의
 ```
 
----
+<br>
 
 ## 데이터 모델
 
@@ -176,15 +188,25 @@ erDiagram
         string id_token
     }
 
+    PENDING_LINK {
+        ObjectId _id PK
+        string token
+        string provider
+        ObjectId userId FK
+        date createdAt
+        date expiresAt
+    }
+
     USER ||--o{ QUESTION : "작성"
     USER ||--o{ ANSWER : "작성"
     USER ||--o| PROFILE : "보유"
     USER ||--o{ ACCOUNT : "연결"
+    USER ||--o{ PENDING_LINK : "계정 연동 대기"
     QUESTION ||--o{ ANSWER : "포함"
     ANSWER ||--|| FEEDBACK : "포함 (embedded)"
 ```
 
----
+<br>
 
 ## 스크립트
 

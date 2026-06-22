@@ -1,20 +1,21 @@
-import { DeleteAccountButton } from '@/components/account/delete-account-button';
+import { AccountJoinedAtSection } from '@/components/account/account-joined-at-section';
+import { AccountLinkAlert } from '@/components/account/account-link-alert';
+import { DeleteAccountSection } from '@/components/account/delete-account-section';
+import { LinkedProvidersSection } from '@/components/account/linked-providers-section';
 import { RetryButton } from '@/components/common/retry-button';
-import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import { serverFetch } from '@/lib/fetch/server';
-import type { AccountProvider, AccountResponse } from '@/types/account';
+import type {
+  AccountLinkError,
+  AccountProvider,
+  AccountResponse,
+} from '@/types/account';
 
-const PROVIDER_LABEL: Record<AccountProvider, string> = {
-  github: 'GitHub',
-  google: 'Google',
-};
-
-const getProviderLabel = (provider: AccountProvider | null) => {
-  if (!provider) {
-    return '알 수 없음';
-  }
-
-  return PROVIDER_LABEL[provider];
+type AccountPageProps = {
+  searchParams?: Promise<{
+    linked?: string | string[];
+    error?: string | string[];
+  }>;
 };
 
 const getJoinedAtLabel = (createdAt: string | null) => {
@@ -29,7 +30,35 @@ const getJoinedAtLabel = (createdAt: string | null) => {
   });
 };
 
-export default async function AccountPage() {
+const parseLinkedProvider = (
+  linked: string | string[] | undefined,
+): AccountProvider | null => {
+  if (typeof linked !== 'string') {
+    return null;
+  }
+
+  return linked === 'google' || linked === 'github' ? linked : null;
+};
+
+const parseAccountLinkError = (
+  error: string | string[] | undefined,
+): AccountLinkError | null => {
+  if (typeof error !== 'string') {
+    return null;
+  }
+
+  return error === 'AlreadyLinked' ||
+    error === 'AlreadyLinkedToCurrent' ||
+    error === 'LinkRequired' ||
+    error === 'LinkExpired'
+    ? error
+    : null;
+};
+
+export default async function AccountPage({ searchParams }: AccountPageProps) {
+  const params = await searchParams;
+  const linkedProvider = parseLinkedProvider(params?.linked);
+  const linkError = parseAccountLinkError(params?.error);
   const result = await serverFetch<AccountResponse>('/api/me', {
     cache: 'no-store',
   });
@@ -45,43 +74,20 @@ export default async function AccountPage() {
     );
   }
 
-  const { provider, createdAt } = result.data;
-  const providerLabel = getProviderLabel(provider);
+  const { createdAt, providers } = result.data;
   const joinedAt = getJoinedAtLabel(createdAt);
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="grid gap-1 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-4">
-        <Label id="provider-label" className="text-sm text-muted-foreground">
-          로그인 방식
-        </Label>
-        <div
-          aria-labelledby="provider-label"
-          className="text-base font-medium md:text-sm"
-        >
-          {providerLabel}
-        </div>
-      </div>
-      <div className="grid gap-1 sm:grid-cols-[5rem_1fr] sm:items-center sm:gap-4">
-        <Label id="created-at-label" className="text-sm text-muted-foreground">
-          가입일
-        </Label>
-        <div
-          aria-labelledby="created-at-label"
-          className="text-base font-medium md:text-sm"
-        >
-          {joinedAt}
-        </div>
-      </div>
-      <div className="mt-5 flex flex-col items-start gap-4 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <p className="font-medium">회원 탈퇴</p>
-          <p className="text-sm text-muted-foreground break-keep">
-            탈퇴 시 계정과 모든 데이터가 삭제되며 복구할 수 없습니다.
-          </p>
-        </div>
-        <DeleteAccountButton />
-      </div>
+    <div className="flex flex-col gap-8">
+      <AccountLinkAlert
+        linkedProvider={linkedProvider}
+        error={linkError}
+        providers={providers}
+      />
+      <LinkedProvidersSection providers={providers} />
+      <AccountJoinedAtSection joinedAt={joinedAt} />
+      <Separator className="my-4" />
+      <DeleteAccountSection />
     </div>
   );
 }

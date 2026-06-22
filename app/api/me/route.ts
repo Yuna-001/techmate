@@ -42,13 +42,14 @@ export async function GET() {
     const db = mongoClient.db();
     const userObjectId = new ObjectId(userId);
 
-    const [user, account] = await Promise.all([
+    const [user, accounts] = await Promise.all([
       db
         .collection<UserDoc>('users')
         .findOne({ _id: userObjectId }, { projection: { createdAt: 1 } }),
       db
         .collection<AccountDoc>('accounts')
-        .findOne({ userId: userObjectId }, { projection: { provider: 1 } }),
+        .find({ userId: userObjectId }, { projection: { provider: 1 } })
+        .toArray(),
     ]);
 
     if (!user) {
@@ -58,14 +59,14 @@ export async function GET() {
       );
     }
 
-    let provider: AccountProvider | null = null;
-
-    if (account && isAccountProvider(account.provider)) {
-      provider = account.provider;
-    }
+    const providers = Array.from(
+      new Set(
+        accounts.map((account) => account.provider).filter(isAccountProvider),
+      ),
+    );
 
     return NextResponse.json<AccountResponse>({
-      provider,
+      providers,
       createdAt: user.createdAt ? user.createdAt.toISOString() : null,
     });
   } catch (err) {
