@@ -1,7 +1,8 @@
+import { createDeferred } from '@/test/utils/async';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { ProviderLinkButton } from './provider-link-button';
 
 const prepareLinkProvider = jest.fn();
@@ -81,13 +82,9 @@ describe('ProviderLinkButton', () => {
 
   test('Pending Link 생성 중 버튼을 비활성화한다', async () => {
     const user = userEvent.setup();
-    let resolvePrepareLinkProvider: (value: { ok: true }) => void;
-    prepareLinkProvider.mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          resolvePrepareLinkProvider = resolve;
-        }),
-    );
+    const deferred = createDeferred<{ ok: true }>();
+
+    prepareLinkProvider.mockReturnValue(deferred.promise);
 
     render(<ProviderLinkButton provider="github" />);
 
@@ -95,7 +92,8 @@ describe('ProviderLinkButton', () => {
     await user.click(button);
 
     expect(button).toBeDisabled();
+    expect(button).toHaveAttribute('aria-busy', 'true');
 
-    resolvePrepareLinkProvider!({ ok: true });
+    deferred.resolve({ ok: true });
   });
 });

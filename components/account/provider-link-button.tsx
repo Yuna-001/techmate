@@ -1,10 +1,10 @@
 'use client';
 
 import { prepareLinkProvider } from '@/app/(protected)/setting/account/actions';
-import { Button } from '@/components/ui/button';
+import { LoadingButton } from '@/components/common/loading-button';
 import type { AccountProvider } from '@/types/account';
-import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 type ProviderLinkButtonProps = {
@@ -40,14 +40,16 @@ export function ProviderLinkButton({ provider }: ProviderLinkButtonProps) {
   };
 
   return (
-    <Button
+    <LoadingButton
       variant="link"
       size="sm"
       onClick={handleLinkProvider}
-      disabled={isPending}
-      className="h-auto px-0 py-2"
+      isLoading={isPending}
+      loadingText={null}
+      aria-label="연동하기"
+      className="min-h-9 px-0 py-2"
     >
       연동하기
-    </Button>
+    </LoadingButton>
   );
 }
