@@ -50,7 +50,7 @@ export function DeleteAccountButton() {
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>회원 탈퇴를 진행하시겠습니까?</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogDescription className="break-keep">
             탈퇴 시 계정과 모든 데이터가 삭제되며 복구할 수 없습니다.
           </AlertDialogDescription>
         </AlertDialogHeader>

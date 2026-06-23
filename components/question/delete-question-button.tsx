@@ -76,8 +76,9 @@ export function DeleteQuestionButton({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>질문을 삭제하시겠습니까?</AlertDialogTitle>
-          <AlertDialogDescription>
-            삭제한 질문과 관련 답변 데이터는 복구할 수 없습니다.
+          <AlertDialogDescription className="break-keep">
+            질문을 삭제하면 관련 답변과 피드백이 함께 삭제되며 복구할 수
+            없습니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
