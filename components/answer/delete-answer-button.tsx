@@ -71,8 +71,8 @@ export function DeleteAnswerButton({
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>답변을 삭제하시겠습니까?</AlertDialogTitle>
-          <AlertDialogDescription>
-            삭제한 답변 데이터는 복구할 수 없습니다.
+          <AlertDialogDescription className="break-keep">
+            답변을 삭제하면 관련 피드백이 함께 삭제되며 복구할 수 없습니다.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -1,6 +1,5 @@
 'use client';
 
-import { IconTooltip } from '@/components/common/icon-tooltip';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -29,18 +28,16 @@ export function MobileMenu() {
 
   return (
     <Sheet>
-      <IconTooltip label="메뉴">
-        <SheetTrigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            aria-label="메뉴 열기"
-            className="sm:hidden"
-          >
-            <Menu />
-          </Button>
-        </SheetTrigger>
-      </IconTooltip>
+      <SheetTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label="메뉴 열기"
+          className="sm:hidden"
+        >
+          <Menu />
+        </Button>
+      </SheetTrigger>
       <SheetContent side="right" className="w-72 max-w-[calc(100vw-2rem)]">
         <SheetHeader>
           <SheetTitle>메뉴</SheetTitle>
