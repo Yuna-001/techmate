@@ -45,7 +45,7 @@ AI 기반 기술 면접 연습 서비스
 
 | 분류          | 기술                                                 |
 | ------------- | ---------------------------------------------------- |
-| Core          | Next.js (App Router), React, TypeScript              |
+| Core          | Next.js (App Router), TypeScript                     |
 | UI            | Tailwind CSS v4, Shadcn UI                           |
 | 인증          | NextAuth v5, Google OAuth, GitHub OAuth              |
 | 데이터베이스  | MongoDB, Mongoose                                    |
