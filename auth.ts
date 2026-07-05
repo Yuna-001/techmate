@@ -98,7 +98,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       const currentSessionUserId = await getCurrentSessionUserId();
 
       if (!linkToken) {
-        // Pending Link 없음: 로그인 중이면 검증되지 않은 연동 요청으로 본다.
+        // Pending Link 없음: 로그인 상태면 검증되지 않은 연동 요청으로 본다.
         if (currentSessionUserId) {
           return '/setting/account?error=LinkRequired';
         }
