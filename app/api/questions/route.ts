@@ -107,18 +107,11 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
 
-    const [totalCount, requestedPageDocs] = await Promise.all([
-      QuestionModel.countDocuments(filter),
-      findQuestionDocs(filter, page, limit),
-    ]);
-
+    const totalCount = await QuestionModel.countDocuments(filter);
     const totalPages = Math.ceil(totalCount / limit);
     const currentPage =
       totalPages > 0 ? Math.min(page, totalPages) : DEFAULT_PAGE;
-    const questionDocs =
-      currentPage === page
-        ? requestedPageDocs
-        : await findQuestionDocs(filter, currentPage, limit);
+    const questionDocs = await findQuestionDocs(filter, currentPage, limit);
 
     // 응답에 사용할 형태로 매핑
     const questionList: QuestionListItem[] = questionDocs.map((doc) => ({
