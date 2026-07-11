@@ -28,6 +28,28 @@ const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 30;
 const MAX_LIMIT = 100;
 
+const findQuestionDocs = (
+  filter: { userId: Types.ObjectId; isBookmarked?: boolean },
+  page: number,
+  limit: number,
+) => {
+  return QuestionModel.find(filter, {
+    _id: 1,
+    content: 1,
+    tags: 1,
+    isBookmarked: 1,
+    createdAt: 1,
+  })
+    .sort({
+      lastActivityAt: -1,
+      createdAt: -1,
+      _id: -1,
+    })
+    .skip((page - 1) * limit)
+    .limit(limit)
+    .lean<QuestionDoc[]>();
+};
+
 // GET /api/questions
 // - 질문 목록을 조회하는 핸들러 (페이지네이션, 북마크 필터 지원)
 export async function GET(req: Request) {
@@ -85,28 +107,11 @@ export async function GET(req: Request) {
   try {
     await dbConnect();
 
-    // 전체 질문 개수 조회 후, 요청 페이지가 범위를 벗어나면 마지막 페이지로 보정
     const totalCount = await QuestionModel.countDocuments(filter);
     const totalPages = Math.ceil(totalCount / limit);
     const currentPage =
       totalPages > 0 ? Math.min(page, totalPages) : DEFAULT_PAGE;
-
-    // 현재 페이지 질문 목록 조회
-    const questionDocs = await QuestionModel.find(filter, {
-      _id: 1,
-      content: 1,
-      tags: 1,
-      isBookmarked: 1,
-      createdAt: 1,
-    })
-      .sort({
-        lastActivityAt: -1, // 최근 활동(질문 생성/답변) 순으로 정렬
-        createdAt: -1, // 최근 생성된 순으로 정렬
-        _id: -1,
-      })
-      .skip((currentPage - 1) * limit)
-      .limit(limit)
-      .lean<QuestionDoc[]>();
+    const questionDocs = await findQuestionDocs(filter, currentPage, limit);
 
     // 응답에 사용할 형태로 매핑
     const questionList: QuestionListItem[] = questionDocs.map((doc) => ({
