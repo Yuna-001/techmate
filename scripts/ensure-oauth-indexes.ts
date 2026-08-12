@@ -3,7 +3,7 @@ import { loadEnvConfig } from '@next/env';
 const ensureOAuthIndexes = async () => {
   loadEnvConfig(process.cwd());
 
-  const { default: client } = await import('../lib/db');
+  const { default: client } = await import('../src/lib/db');
 
   try {
     const db = client.db();
