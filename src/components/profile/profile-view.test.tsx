@@ -4,16 +4,15 @@ import { ProfileView } from './profile-view';
 
 const EMPTY = '아직 설정되지 않았습니다.';
 
-const getByLabelledBy = (labelId: string): HTMLElement => {
-  const el = document.querySelector(`[aria-labelledby="${labelId}"]`);
+const getDescriptionValue = (label: string): HTMLElement => {
+  const term = screen.getByText(label);
+  const value = term.nextElementSibling;
 
-  if (!(el instanceof HTMLElement)) {
-    throw new Error(
-      `Element not found (or not HTMLElement): aria-labelledby="${labelId}"`,
-    );
+  if (!(value instanceof HTMLElement)) {
+    throw new Error(`Description value not found: ${label}`);
   }
 
-  return el;
+  return value;
 };
 
 const emptyProfile: ProfileResponse = {
@@ -35,9 +34,9 @@ describe('ProfileView', () => {
   test('초기 상태면 직무/경력/기술 스택을 모두 미설정 문구로 표시한다', () => {
     render(<ProfileView profile={emptyProfile} />);
 
-    expect(getByLabelledBy('position-label')).toHaveTextContent(EMPTY);
-    expect(getByLabelledBy('experience-label')).toHaveTextContent(EMPTY);
-    expect(getByLabelledBy('skills-label')).toHaveTextContent(EMPTY);
+    expect(getDescriptionValue('직무')).toHaveTextContent(EMPTY);
+    expect(getDescriptionValue('경력')).toHaveTextContent(EMPTY);
+    expect(getDescriptionValue('기술 스택')).toHaveTextContent(EMPTY);
   });
 
   test('프로필이 설정된 상태면 직무/경력/기술 스택을 값으로 표시하고 미설정 문구는 표시하지 않는다', () => {
@@ -49,16 +48,14 @@ describe('ProfileView', () => {
 
     render(<ProfileView profile={profile} />);
 
-    expect(getByLabelledBy('position-label')).toHaveTextContent(
-      profile.position,
-    );
+    expect(getDescriptionValue('직무')).toHaveTextContent(profile.position);
 
-    expect(getByLabelledBy('experience-label')).toHaveTextContent(
+    expect(getDescriptionValue('경력')).toHaveTextContent(
       `${profile.experience}년`,
     );
 
     profile.skills.forEach((skill) =>
-      expect(getByLabelledBy('skills-label')).toHaveTextContent(skill),
+      expect(getDescriptionValue('기술 스택')).toHaveTextContent(skill),
     );
 
     expect(screen.queryByText(EMPTY)).not.toBeInTheDocument();
@@ -67,6 +64,6 @@ describe('ProfileView', () => {
   test('경력이 0이면 "0년"으로 표시한다', () => {
     render(<ProfileView profile={{ ...emptyProfile, experience: 0 }} />);
 
-    expect(getByLabelledBy('experience-label')).toHaveTextContent('0년');
+    expect(getDescriptionValue('경력')).toHaveTextContent('0년');
   });
 });
