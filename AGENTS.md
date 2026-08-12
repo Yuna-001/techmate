@@ -197,6 +197,18 @@ PR 설명은 반드시 아래 형식을 따른다.
 
 ## 코드 스타일
 
+### TypeScript 타입 선언
+
+- 객체 타입 선언은 기본적으로 `type`을 사용한다.
+- React 컴포넌트 props, API 요청/응답 DTO, form values, 유틸 함수 인자/반환 타입은 `type`으로 선언한다.
+- union, intersection, mapped type, conditional type, tuple, primitive alias는 `type`으로 선언한다.
+- `interface`는 외부 구현체가 따르는 계약, class `implements`, 선언 병합이 필요한 라이브러리 확장처럼 확장 가능한 객체 계약에만 사용한다.
+- `any`는 기본적으로 사용하지 않는다.
+- 타입을 알 수 없는 값은 `unknown`으로 선언하고, 사용 전에 타입 가드나 스키마 검증으로 좁힌다.
+- `catch`의 에러 값, 외부 API 응답, `JSON.parse`, 브라우저 저장소 값, 서드파티 콜백 입력처럼 신뢰할 수 없는 경계 값은 `unknown`으로 받는다.
+- `unknown` 값을 바로 속성 접근, 함수 호출, 연산에 사용하지 않는다.
+- 불가피하게 `any`가 필요한 경우에는 해당 줄에 이유를 주석으로 남기고, 가능한 가장 좁은 범위에서만 사용한다.
+
 ### 네이밍
 
 - 파일: kebab-case (`product-card.tsx`)
