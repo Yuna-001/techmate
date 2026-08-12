@@ -1,22 +1,19 @@
-import { PaginatedResponse } from './pagination';
+import type { PaginatedResponse } from './pagination';
 
-export interface QuestionDetailCommonFields {
+export type QuestionDetailResponse = {
   content: string;
   exampleAnswer: string;
+  createdAt: string;
   isBookmarked: boolean;
   tags: string[];
-}
+};
 
-export interface QuestionDetailResponse extends QuestionDetailCommonFields {
-  createdAt: string;
-}
-
-export interface QuestionListItem {
+export type QuestionListItem = {
   questionId: string;
   content: string;
   createdAt: string;
   isBookmarked: boolean;
   tags: string[];
-}
+};
 
 export type QuestionListResponse = PaginatedResponse<QuestionListItem>;

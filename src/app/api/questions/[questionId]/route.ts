@@ -3,10 +3,7 @@ import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
 import AnswerModel from '@/models/answer';
 import QuestionModel from '@/models/question';
-import type {
-  QuestionDetailCommonFields,
-  QuestionDetailResponse,
-} from '@/types/question';
+import type { QuestionDetailResponse } from '@/types/question';
 import mongoose, { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 
@@ -14,9 +11,13 @@ type RouteParams = {
   params: Promise<{ questionId: string }>;
 };
 
-interface QuestionDetailDoc extends QuestionDetailCommonFields {
+type QuestionDetailDoc = {
+  content: string;
+  exampleAnswer: string;
   createdAt: Date;
-}
+  isBookmarked: boolean;
+  tags: string[];
+};
 
 // GET /api/questions/[questionId]
 // - 사용자 소유의 특정 질문을 조회하는 핸들러

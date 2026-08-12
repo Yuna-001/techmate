@@ -1,12 +1,12 @@
 import type { Feedback } from '@/models/answer';
-import { PaginatedResponse } from '@/types/pagination';
+import type { PaginatedResponse } from '@/types/pagination';
 
-export interface AnswerListItem {
+export type AnswerListItem = {
   answerId: string;
   content: string;
   score: number;
   createdAt: string;
-}
+};
 
 export type AnswerListResponse = PaginatedResponse<AnswerListItem>;
 
