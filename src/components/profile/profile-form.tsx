@@ -56,7 +56,7 @@ export function ProfileForm({ initialProfile }: ProfileFormProps) {
 
     const newErrors: FormErrors = {};
 
-    const fd = new FormData(event.target as HTMLFormElement);
+    const fd = new FormData(event.currentTarget);
 
     const position = (fd.get('position') ?? '').toString().trim();
 

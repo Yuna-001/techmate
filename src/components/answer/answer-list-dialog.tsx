@@ -36,9 +36,9 @@ type FetchState =
       totalCount: number;
     };
 
-interface AnswerListDialogProps {
+type AnswerListDialogProps = {
   questionId: string;
-}
+};
 
 export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   const pathname = usePathname();
@@ -46,9 +46,9 @@ export function AnswerListDialog({ questionId }: AnswerListDialogProps) {
   return <AnswerListDialogContent key={pathname} questionId={questionId} />;
 }
 
-interface AnswerListDialogContentProps {
+type AnswerListDialogContentProps = {
   questionId: string;
-}
+};
 
 function AnswerListDialogContent({ questionId }: AnswerListDialogContentProps) {
   const [open, setOpen] = useState(false);
