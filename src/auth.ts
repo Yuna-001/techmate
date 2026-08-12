@@ -23,6 +23,16 @@ type AccountDoc = {
 
 const ACCOUNT_LINK_TOKEN_COOKIE = 'account_link_token';
 
+const getRequiredEnv = (key: string): string => {
+  const value = process.env[key];
+
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${key}`);
+  }
+
+  return value;
+};
+
 // 현재 세션 사용자 확인
 const getCurrentSessionUserId = async () => {
   const headerStore = await headers();
@@ -52,12 +62,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: authAdapter,
   providers: [
     GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID as string,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET as string,
+      clientId: getRequiredEnv('AUTH_GOOGLE_ID'),
+      clientSecret: getRequiredEnv('AUTH_GOOGLE_SECRET'),
     }),
     GithubProvider({
-      clientId: process.env.AUTH_GITHUB_ID as string,
-      clientSecret: process.env.AUTH_GITHUB_SECRET as string,
+      clientId: getRequiredEnv('AUTH_GITHUB_ID'),
+      clientSecret: getRequiredEnv('AUTH_GITHUB_SECRET'),
     }),
   ],
   session: {

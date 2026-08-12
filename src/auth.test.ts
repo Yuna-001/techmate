@@ -80,7 +80,19 @@ jest.mock('next/headers', () => ({
   headers: jest.fn(),
 }));
 
-import './auth';
+const originalAuthEnv = {
+  AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID,
+  AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET,
+  AUTH_GITHUB_ID: process.env.AUTH_GITHUB_ID,
+  AUTH_GITHUB_SECRET: process.env.AUTH_GITHUB_SECRET,
+};
+
+process.env.AUTH_GOOGLE_ID = 'test-google-id';
+process.env.AUTH_GOOGLE_SECRET = 'test-google-secret';
+process.env.AUTH_GITHUB_ID = 'test-github-id';
+process.env.AUTH_GITHUB_SECRET = 'test-github-secret';
+
+const authModulePromise = import('./auth');
 
 const currentUserId = '507f1f77bcf86cd799439011';
 const otherUserId = '507f1f77bcf86cd799439012';
@@ -109,6 +121,10 @@ const callSignIn = async (oauthAccount: OAuthAccount | null = account) => {
 };
 
 describe('NextAuth signIn callback OAuth 계정 연동', () => {
+  beforeAll(async () => {
+    await authModulePromise;
+  });
+
   beforeEach(() => {
     mockCollection.mockImplementation((collectionName: string) => {
       if (collectionName === 'pendingLinks') {
@@ -142,6 +158,16 @@ describe('NextAuth signIn callback OAuth 계정 연동', () => {
 
   afterEach(() => {
     setNodeEnv(originalNodeEnv);
+  });
+
+  afterAll(() => {
+    for (const [key, value] of Object.entries(originalAuthEnv)) {
+      if (value === undefined) {
+        delete process.env[key];
+      } else {
+        process.env[key] = value;
+      }
+    }
   });
 
   test('OAuth account가 없으면 기존 로그인 흐름을 유지한다', async () => {
