@@ -13,10 +13,10 @@ type ProviderLinkButtonProps = {
 
 export function ProviderLinkButton({ provider }: ProviderLinkButtonProps) {
   const router = useRouter();
-  const [isPending, setIsPending] = useState(false);
+  const [isLinking, setIsLinking] = useState(false);
 
   const handleLinkProvider = async () => {
-    setIsPending(true);
+    setIsLinking(true);
 
     try {
       const result = await prepareLinkProvider(provider);
@@ -27,7 +27,7 @@ export function ProviderLinkButton({ provider }: ProviderLinkButtonProps) {
           return;
         }
 
-        setIsPending(false);
+        setIsLinking(false);
         return;
       }
 
@@ -44,7 +44,7 @@ export function ProviderLinkButton({ provider }: ProviderLinkButtonProps) {
       variant="link"
       size="sm"
       onClick={handleLinkProvider}
-      isLoading={isPending}
+      isLoading={isLinking}
       loadingText={null}
       aria-label="연동하기"
       className="min-h-9 px-0 py-2"
