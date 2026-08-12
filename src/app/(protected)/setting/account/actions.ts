@@ -18,12 +18,11 @@ type PendingLinkDoc = {
   expiresAt: Date;
 };
 
-const ALLOWED_PROVIDERS: AccountProvider[] = ['google', 'github'];
 const ACCOUNT_LINK_TOKEN_COOKIE = 'account_link_token';
 const LINK_TOKEN_MAX_AGE_SECONDS = 60 * 10;
 
 const isAccountProvider = (provider: string): provider is AccountProvider =>
-  ALLOWED_PROVIDERS.includes(provider as AccountProvider);
+  provider === 'google' || provider === 'github';
 
 export const prepareLinkProvider = async (
   provider: string,
