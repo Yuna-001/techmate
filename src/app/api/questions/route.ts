@@ -2,27 +2,28 @@ import { createQuestionResponse } from '@/lib/ai/question';
 import { requireUserId } from '@/lib/auth/requireUserId';
 import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
+import { isRecord } from '@/lib/type-guards';
 import ProfileModel from '@/models/profile';
 import QuestionModel from '@/models/question';
 import type { ProfileDoc } from '@/types/profile';
 import { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 
-interface QuestionCommonFields {
+type QuestionDoc = {
+  _id: Types.ObjectId;
   content: string;
+  createdAt: Date;
   isBookmarked: boolean;
   tags: string[];
-}
+};
 
-interface QuestionDoc extends QuestionCommonFields {
-  _id: Types.ObjectId;
-  createdAt: Date;
-}
-
-interface QuestionListItem extends QuestionCommonFields {
+type QuestionListItem = {
   questionId: string;
+  content: string;
   createdAt: string;
-}
+  isBookmarked: boolean;
+  tags: string[];
+};
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 30;
@@ -152,12 +153,6 @@ export async function GET(req: Request) {
   }
 }
 
-type GeneratedQuestion = {
-  content: string;
-  exampleAnswer: string;
-  tags: string[];
-};
-
 // POST /api/questions
 // - 사용자 프로필 기반 면접 질문을 생성·저장하고 questionId를 반환하는 핸들러
 export async function POST() {
@@ -275,11 +270,11 @@ export async function POST() {
       );
     }
 
-    let parsed: Partial<GeneratedQuestion>;
+    let parsed: unknown;
 
     try {
       // JSON 파싱
-      parsed = JSON.parse(raw) as GeneratedQuestion;
+      parsed = JSON.parse(raw);
     } catch (err) {
       console.error('Failed to parse OpenAI response as JSON', {
         raw,
@@ -288,6 +283,15 @@ export async function POST() {
 
       return NextResponse.json(
         { error: '면접 질문 생성에 실패했습니다.' },
+        { status: 500 },
+      );
+    }
+
+    if (!isRecord(parsed)) {
+      console.error('Invalid generated question format', parsed);
+
+      return NextResponse.json(
+        { error: '생성된 응답 형식이 올바르지 않습니다.' },
         { status: 500 },
       );
     }

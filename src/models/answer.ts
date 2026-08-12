@@ -1,20 +1,20 @@
 import mongoose, { Schema, Types } from 'mongoose';
 
-export interface Feedback {
+export type Feedback = {
   score: number;
   summary: string;
   strengths: string[];
   improvements: string[];
   missingKeywords: string[];
-}
+};
 
-interface AnswerDocument {
+type AnswerDocument = {
   userId: Types.ObjectId;
   questionId: Types.ObjectId;
   content: string;
   feedback: Feedback;
   createdAt: Date;
-}
+};
 
 const feedbackSchema = new Schema<Feedback>(
   {

@@ -1,6 +1,7 @@
 import { requireUserId } from '@/lib/auth/requireUserId';
 import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
+import { isRecord } from '@/lib/type-guards';
 import QuestionModel from '@/models/question';
 import { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
@@ -57,11 +58,11 @@ export async function PUT(req: Request, { params }: RouteParams) {
     );
   }
 
-  if (typeof body !== 'object' || body === null) {
+  if (!isRecord(body)) {
     return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
   }
 
-  const { isBookmarked } = body as { isBookmarked?: unknown };
+  const { isBookmarked } = body;
 
   if (typeof isBookmarked !== 'boolean') {
     return NextResponse.json(

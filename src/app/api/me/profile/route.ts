@@ -2,6 +2,7 @@ import { requireUserId } from '@/lib/auth/requireUserId';
 import { MAX_EXPERIENCE } from '@/lib/constants/profile';
 import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
+import { isRecord } from '@/lib/type-guards';
 import ProfileModel from '@/models/profile';
 import type { ProfileDoc, ProfileResponse } from '@/types/profile';
 import { NextResponse } from 'next/server';
@@ -98,11 +99,11 @@ export async function PUT(req: Request) {
     );
   }
 
-  if (typeof body !== 'object' || body === null) {
+  if (!isRecord(body)) {
     return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
   }
 
-  const { position, experience, skills } = body as Partial<ProfileDoc>;
+  const { position, experience, skills } = body;
 
   // position: 필수, 문자열, trim 후 비어있으면 안 됨
   const normalizedPosition =

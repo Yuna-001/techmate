@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { openai } from '@/lib/ai/client';
+import { isRecord } from '@/lib/type-guards';
 import type { Feedback } from '@/models/answer';
 
 type FeedbackInput = {
@@ -133,13 +134,12 @@ const parseFeedback = (raw: string): Feedback => {
     throw new Error('피드백 생성에 실패했습니다.', { cause: err });
   }
 
-  if (typeof parsed !== 'object' || parsed === null) {
+  if (!isRecord(parsed)) {
     console.error('Parsed feedback is not an object', parsed);
     throw new Error('생성된 응답 형식이 올바르지 않습니다.');
   }
 
-  const { score, summary, strengths, improvements, missingKeywords } =
-    parsed as Record<string, unknown>;
+  const { score, summary, strengths, improvements, missingKeywords } = parsed;
 
   const normalizedSummary = typeof summary === 'string' ? summary.trim() : '';
   const normalizedStrengths = normalizeStringArray(strengths);

@@ -1,11 +1,11 @@
 import mongoose, { Schema, Types } from 'mongoose';
 
-interface ProfileDocument {
+type ProfileDocument = {
   userId: Types.ObjectId;
   position: string;
   skills: string[];
   experience: number | null;
-}
+};
 
 const profileSchema = new Schema<ProfileDocument>(
   {

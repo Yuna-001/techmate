@@ -3,31 +3,30 @@ import { requireUserId } from '@/lib/auth/requireUserId';
 import { MAX_ANSWER_LENGTH } from '@/lib/constants/answer';
 import dbConnect from '@/lib/dbConnect';
 import { HttpError } from '@/lib/error';
+import { isRecord } from '@/lib/type-guards';
 import AnswerModel from '@/models/answer';
 import QuestionModel from '@/models/question';
 import { Types } from 'mongoose';
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-interface RouteParams {
+type RouteParams = {
   params: Promise<{ questionId: string }>;
-}
+};
 
-interface AnswerCommonFields {
-  content: string;
-}
-
-interface AnswerDoc extends AnswerCommonFields {
+type AnswerDoc = {
   _id: Types.ObjectId;
+  content: string;
   feedback: { score: number };
   createdAt: Date;
-}
+};
 
-interface AnswerListItem extends AnswerCommonFields {
+type AnswerListItem = {
   answerId: string;
+  content: string;
   score: number;
   createdAt: string;
-}
+};
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_LIMIT = 30;
@@ -198,11 +197,11 @@ export async function POST(req: Request, { params }: RouteParams) {
     );
   }
 
-  if (typeof body !== 'object' || body === null) {
+  if (!isRecord(body)) {
     return NextResponse.json({ error: '잘못된 요청입니다.' }, { status: 400 });
   }
 
-  const { answer } = body as { answer?: unknown };
+  const { answer } = body;
 
   if (typeof answer !== 'string') {
     return NextResponse.json(

@@ -1,6 +1,6 @@
 import mongoose, { Schema, Types } from 'mongoose';
 
-interface QuestionDocument {
+type QuestionDocument = {
   userId: Types.ObjectId;
   content: string;
   exampleAnswer: string;
@@ -8,7 +8,7 @@ interface QuestionDocument {
   isBookmarked: boolean;
   lastActivityAt: Date;
   createdAt: Date;
-}
+};
 
 const questionSchema = new Schema<QuestionDocument>({
   userId: {
